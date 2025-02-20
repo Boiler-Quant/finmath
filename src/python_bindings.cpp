@@ -38,6 +38,6 @@ PYBIND11_MODULE(finmath, m) {
     m.def("simple_moving_average", &simple_moving_average, "Simple Moving Average",
           py::arg("prices"), py::arg("window_size"));
 
-    m.def("rsi", &compute_rsi, "Relative Strength Index(RSI)",
+    m.def("smoothed_rsi", &compute_smoothed_rsi, "Relative Strength Index(RSI)",
           py::arg("prices"), py::arg("window_size"));
 }
