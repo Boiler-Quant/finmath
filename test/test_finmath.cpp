@@ -8,12 +8,14 @@
 int compound_interest_tests();
 int black_scholes_tests();
 int rsi_tests();
+int fail_test();
 
 int main() {
     std::cout << "Starting Unit Tests\n";
     compound_interest_tests();
     black_scholes_tests();
     rsi_tests();
+    fail_test();
 
     return 0;
 }
@@ -304,3 +306,14 @@ int rsi_tests() {
     return 0;
 }
 
+int fail_test()
+{
+    double expected = 5000.0;  // Incorrect expected value
+    double tolerance = 0.001;
+
+    double result = compound_interest(1000, 5, 10, 1);
+    assert(5 == 3);  // This will fail
+
+    //std::cout << "This should not print if the assertion fails.\n";
+    return 0;
+}
