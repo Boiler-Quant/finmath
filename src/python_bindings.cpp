@@ -31,6 +31,22 @@ PYBIND11_MODULE(finmath, m) {
     m.def("binomial_option_pricing", &binomial_option_pricing, "Binomial Option Pricing",
           py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"));
 
+    // Bind binomial greeks
+    m.def("binom_delta", &Binom::compute_delta, "Calculate the Delta of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_S") = -1);
+
+    m.def("binom_gamma", &Binom::compute_gamma, "Calculate the Gamma of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_S") = -1);
+    
+    m.def("binom_vega", &Binom::compute_vega, "Calculate the Vega of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_sig") = -1);
+
+    m.def("binom_theta", &Binom::compute_theta, "Calculate the Theta of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_T") = -1);
+
+    m.def("binom_rho", &Binom::compute_rho, "Calculate the Rho of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_r") = -1);
+    
     // Bind rolling volatility
     m.def("rolling_volatility", &rolling_volatility, "Rolling Volatility",
           py::arg("prices"), py::arg("window_size"));
