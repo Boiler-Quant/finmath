@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "cmake", "pybind11>=2.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finmath"
+version = "0.0.1"
+authors = [
+    { name = "Prajwal Shah", email = "pjpackers99@gmail.com" },
+    { name = "Anish Kambhampati", email = "kraghuranish@gmail.com" },
+    { name = "Seygul Park", email = "hifipark0801@gmail.com" }
+]
+description = "finmath is a high-performance financial mathematics library written in C++ with Python bindings using pybind11. The library includes various functions for calculating compound interest, option pricing (including Black-Scholes and Binomial Tree models), and time series analysis."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT",
+    "Operating System :: OS Independent"
+]
+keywords = [
+    "financial mathematics",
+    "Black-Scholes",
+    "option pricing",
+    "time series analysis",
+    "Python bindings",
+    "C++"
+]
+dependencies = ["numpy>=1.21", "scipy>=1.7"]
+
+[tool.setuptools]
+packages = ["finmath"]
+package-dir = { "" = "src" }
+include-package-data = true  # Ensures extra files like .dylib are included
+
+[tool.setuptools.package-data]
+finmath = ["*.dylib", "*.so"]  # Adjust depending on platform and outputs
+
+[project.optional-dependencies]
+ml = ["pandas", "scikit-learn"]
+
+[project.urls]
+Homepage = "https://github.com/prajwalshah19/finmath"
+Issues = "https://github.com/prajwalshah19/finmath/issues"

@@ -1,0 +1,6 @@
+include CMakeLists.txt
+include src/finmath_bindings.cpp
+include src/finmath/*.h
+recursive-include src *.cpp *.h *.py *.so
+recursive-include include *.cpp *.h *.py *.so
+recursive-include test *.cpp *.h *.py *.so
