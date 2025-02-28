@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add debugging symbols (set to Release for optimized performance if needed)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Add include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -24,6 +24,7 @@ add_library(finmath_library SHARED ${SOURCES}
     "include/finmath/TimeSeries/rolling_volatility.h"
     "include/finmath/TimeSeries/simple_moving_average.h"
     "include/finmath/TimeSeries/rsi.h"
+    "include/finmath/TimeSeries/rolling_std_dev.h")
     "include/finmath/TimeSeries/ema.h")
 
 # Test executable
