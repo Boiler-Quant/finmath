@@ -1,6 +1,7 @@
 #include "finmath/TimeSeries/rolling_std_dev.h"
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 std::vector<double> rolling_std_dev_fast(size_t window, const std::vector<double> &prices)
 {
@@ -9,7 +10,7 @@ std::vector<double> rolling_std_dev_fast(size_t window, const std::vector<double
     }
 
     std::vector<double> result(prices.size(),0.0);
-    if(window > prices.size()) return result;
+    if(window > prices.size()) window = prices.size();
 
     double mean = 0.0;
     double squared_sum = 0.0;
@@ -26,7 +27,8 @@ std::vector<double> rolling_std_dev_fast(size_t window, const std::vector<double
         double price_in = prices[i];
         double old_mean = mean;
         mean += (price_in - price_out)/window;
-        squared_sum += (price_in - price_out)* (price_in + price_out - 2 * mean);
+        squared_sum += (price_in - mean) * (price_in - old_mean)
+         - (price_out - mean) * (price_out - old_mean);
         result[i] = std::sqrt(squared_sum/window);
         price_out = prices[i - window + 1];
     }
