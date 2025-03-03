@@ -35,9 +35,26 @@ enable_testing()
 # Define tests
 add_test(NAME UnitTests COMMAND runTests)
 
+# Compound Interest tests
+add_executable(compound_interest_test test/compound_interest/compound_interest_test.cpp)
+target_link_libraries(compound_interest_test finmath_library)
+add_test(NAME CompoundInterestTest COMMAND compound_interest_test)
+
+# Black-Scholes tests
+add_executable(black_scholes_test test/black_scholes/black_scholes_test.cpp)
+target_link_libraries(black_scholes_test finmath_library)
+add_test(NAME BlackScholesTest COMMAND black_scholes_test)
+
+# RSI tests
+add_executable(rsi_test test/rsi/rsi_test.cpp)
+target_link_libraries(rsi_test finmath_library)
+add_test(NAME RsiTest COMMAND rsi_test)
+
 # Ensure 'make' builds the tests and then runs them
 add_custom_target(build_and_test
-    COMMAND ${CMAKE_COMMAND} --build . --target runTests
+    COMMAND ${CMAKE_COMMAND} --build . --target compound_interest_test
+    COMMAND ${CMAKE_COMMAND} --build . --target black_scholes_test
+    COMMAND ${CMAKE_COMMAND} --build . --target rsi_test
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
