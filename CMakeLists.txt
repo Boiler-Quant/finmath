@@ -26,19 +26,37 @@ add_library(finmath_library SHARED ${SOURCES}
     "include/finmath/TimeSeries/rsi.h"
     "include/finmath/TimeSeries/ema.h")
 
-# Test executable
-add_executable(runTests test/test_finmath.cpp)
-target_link_libraries(runTests finmath_library)
+# Test executables
+add_executable(black_scholes_test test/OptionPricing/black_scholes_test.cpp)
+target_link_libraries(black_scholes_test finmath_library)
+
+add_executable(binomial_option_pricing_test test/OptionPricing/binomial_option_pricing_test.cpp)
+target_link_libraries(binomial_option_pricing_test finmath_library)
+
+add_executable(compound_interest_test test/InterestAndAnnuities/compound_interest_test.cpp)
+target_link_libraries(compound_interest_test finmath_library)
+
+add_executable(rsi_test test/TimeSeries/rsi_test.cpp)
+target_link_libraries(rsi_test finmath_library)
+
+# Test runner
+add_executable(run_all_tests test/test_runner.cpp)
 
 # Enable testing
 enable_testing()
 
-# Define tests
-add_test(NAME UnitTests COMMAND runTests)
+# Define individual tests
+add_test(NAME BlackScholesTest COMMAND black_scholes_test)
+add_test(NAME BinomialOptionPricingTest COMMAND binomial_option_pricing_test)
+add_test(NAME CompoundInterestTest COMMAND compound_interest_test)
+add_test(NAME RSITest COMMAND rsi_test)
 
-# Ensure 'make' builds the tests and then runs them
+# Add a custom target to run all tests
 add_custom_target(build_and_test
-    COMMAND ${CMAKE_COMMAND} --build . --target runTests
+    COMMAND ${CMAKE_COMMAND} --build . --target black_scholes_test
+    COMMAND ${CMAKE_COMMAND} --build . --target binomial_option_pricing_test
+    COMMAND ${CMAKE_COMMAND} --build . --target compound_interest_test
+    COMMAND ${CMAKE_COMMAND} --build . --target rsi_test
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
