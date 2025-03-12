@@ -16,7 +16,7 @@
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/prajwalshah19/finmath.git
+   git clone https://github.com/Boiler-Quant/finmath.git
    cd finmath
    ```
 
