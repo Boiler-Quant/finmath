@@ -81,3 +81,10 @@ set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")
 
 # Link the Python bindings target with the C++ library
 target_link_libraries(finmath_bindings PRIVATE finmath_library)
+
+# Set install target for pip to find shared lib
+install(TARGETS finmath_bindings
+        LIBRARY DESTINATION .
+        ARCHIVE DESTINATION .
+        RUNTIME DESTINATION .
+)

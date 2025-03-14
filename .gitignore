@@ -1,4 +1,21 @@
-build
-cmake-build-debug
-venv
-.idea
+# Build artifacts
+build/
+dist/
+_skbuild/
+*.egg-info/
+
+# CMake generated dependencies
+_deps/
+
+# Virtual environments
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# IDEs
+.idea/
+
+# OS generated files
+.DS_Store
