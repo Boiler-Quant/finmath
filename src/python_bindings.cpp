@@ -47,6 +47,23 @@ PYBIND11_MODULE(finmath, m) {
     m.def("binom_rho", &Binom::compute_rho, "Calculate the Rho of a Binomial Option",
             py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_r") = -1);
     
+
+    // Bind black scholes greeks
+    m.def("black_scholes_delta", &BlackScholes::compute_delta, "Calculate the Delta of a Black Scholes Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+
+    m.def("black_scholes_gamma", &BlackScholes::compute_gamma, "Calculate the Gamma of a Black Scholes Option",
+            py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+
+    m.def("black_scholes_vega", &BlackScholes::compute_vega, "Calculate the Vega of a Black Scholes Option",
+            py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+    
+    m.def("black_scholes_theta", &BlackScholes::compute_theta, "Calculate the Theta of a Black Scholes Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("T"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+
+    m.def("black_scholes_rho", &BlackScholes::compute_rho, "Calculate the Rho of a Black Scholes Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+
     // Bind rolling volatility
     m.def("rolling_volatility", &rolling_volatility, "Rolling Volatility",
           py::arg("prices"), py::arg("window_size"));
