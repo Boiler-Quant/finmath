@@ -9,7 +9,8 @@
 - C++17 or later
 - Python 3.6 or later
 - `pybind11` (for Python bindings)
-- `CMake` 3.10 or later (for building the library)
+- `CMake` 3.5 or later (for building the library)
+- `ninja` For optimizing cmake build
 
 ### Build Instructions
 
