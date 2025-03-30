@@ -1,0 +1,16 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11==2.10.0"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "finmath"
+version = "0.1.14"
+description = "A financial math library"
+requires-python = ">=3.9"
+dependencies = [
+    "pybind11==2.10.0"
+]
+
+[tool.scikit-build]
+build-dir = "build"
+cmake.args = ["-DCMAKE_POLICY_VERSION_MINIMUM=3.5"]

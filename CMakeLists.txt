@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15...4.0)
 
-project(finmath)
+project(finmath LANGUAGES CXX)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -81,3 +81,25 @@ set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")
 
 # Link the Python bindings target with the C++ library
 target_link_libraries(finmath_bindings PRIVATE finmath_library)
+
+# Set install target for pip to find shared lib
+install(TARGETS finmath_bindings finmath_library
+        LIBRARY DESTINATION finmath
+        ARCHIVE DESTINATION finmath
+        RUNTIME DESTINATION finmath
+)
+
+if(APPLE)
+    # For the Python bindings module
+    set_target_properties(finmath_bindings PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "@loader_path"
+    )
+    # For the library itself (if needed)
+    set_target_properties(finmath_library PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "@loader_path"
+    )
+endif()
+
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
