@@ -52,7 +52,15 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG v2.10.0  # Use a stable version of pybind11
 )
-FetchContent_MakeAvailable(pybind11)
+
+# Add xsimd
+FetchContent_Declare(
+    xsimd
+    GIT_REPOSITORY https://github.com/xtensor-stack/xsimd.git
+    GIT_TAG 9.0.1
+)
+
+FetchContent_MakeAvailable(pybind11 xsimd)
 
 # Create the Python bindings target
 pybind11_add_module(finmath_bindings src/python_bindings.cpp ${SOURCES})
@@ -62,3 +70,5 @@ set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")
 
 # Link the Python bindings target with the C++ library
 target_link_libraries(finmath_bindings PRIVATE finmath_library)
+
+target_include_directories(finmath_library PRIVATE ${xsimd_SOURCE_DIR}/include)

@@ -3,7 +3,7 @@
 #include "finmath/Helper/helper.h"
 #include <vector>
 #include <xsimd/xsimd.hpp>
-#include <omp.h>
+#include <future>
 
 
 double black_scholes(OptionType type, double strike, double price, double time, double rate, double volatility) {
@@ -11,8 +11,8 @@ double black_scholes(OptionType type, double strike, double price, double time, 
     double vol_sqrt_time = volatility * sqrt_time;
     double rate_time = rate * time;
 
-    double d1 = (std::log(price / strike) + ((rate + volatility * volatility/2) * time)) / volatility_sqrt_time;
-    double d2 = d1 - volatility_sqrt_time;
+    double d1 = (std::log(price / strike) + ((rate + volatility * volatility/2) * time)) / vol_sqrt_time;
+    double d2 = d1 - vol_sqrt_time;
 
     double disc_factor = std::exp(-rate_time);
     double cdf_d1 = normal_cdf_approx(d1);
@@ -27,6 +27,7 @@ double black_scholes(OptionType type, double strike, double price, double time, 
 }
 
 // Black-Scholes options pricing with simd
+/*
 inline xsimd::batch<double> black_scholes_simd(
     xsimd::batch<double> price, xsimd::batch<double> strike, xsimd::batch<double> time,
     xsimd::batch<double> rate, xsimd::batch<double> volatility, xsimd::batch<double>& call_result, xsimd::batch<double>& put_result) {
@@ -46,6 +47,39 @@ inline xsimd::batch<double> black_scholes_simd(
 
     call_result = price * cdf_d1 - disc_factor * strike * cdf_d2;
     put_result = strike * disc_factor * (1 - cdf_d2) - price * (1 - cdf_d1);
+
+    return {call_result, put_result};
+}
+*/
+
+inline void black_scholes_simd_calls(
+    xsimd::batch<double> price, 
+    xsimd::batch<double> strike, 
+    xsimd::batch<double> time,
+    xsimd::batch<double> rate, 
+    xsimd::batch<double> volatility, 
+    xsimd::batch<double>& call_result)
+{
+    // Compute common terms for Black-Scholes.
+    auto sqrt_time     = xsimd::sqrt(time);
+    auto vol_sqrt_time = volatility * sqrt_time;
+    auto rate_time     = rate * time;
+    
+    // Compute d1 and d2 using SIMD arithmetic.
+    auto d1 = (xsimd::log(price / strike) + (rate + xsimd::batch<double>(0.5) * volatility * volatility) * time)
+              / vol_sqrt_time;
+    auto d2 = d1 - vol_sqrt_time;
+    
+    // Discount factor.
+    auto disc_factor = xsimd::exp(-rate_time);
+    
+    // Compute the cumulative distribution function for each lane.
+    // (Ensure your normal_cdf_approx is overloaded or templated for xsimd::batch<double>)
+    auto cdf_d1 = normal_cdf_approx(d1);
+    auto cdf_d2 = normal_cdf_approx(d2);
+    
+    // Calculate the call option price (specialized for calls only).
+    call_result = price * cdf_d1 - disc_factor * strike * cdf_d2;
 }
 
 // Ensure memory is aligned when using simd
@@ -54,39 +88,45 @@ using AlignedVector = std::vector<T, xsimd::aligned_allocator<T>>;
 
 
 // Efficient method to price multiple options (uses omp for multi threading, and simd for parallel computation in a thread)
-AlignedVector<double> black_scholes_multiple(
-    const std::vector<OptionType>& types,
+AlignedVector<double> black_scholes_multiple_calls(
     const AlignedVector<double>& strikes,
     const AlignedVector<double>& prices,
     const AlignedVector<double>& times,
     const AlignedVector<double>& rates,
     const AlignedVector<double>& volatilities) {
 
-    size_t num_options = types.size();
+    size_t num_options = prices.size();
     AlignedVector<double> results(num_options);
 
     // SIMD batch size (depends on cpu architecture)
     constexpr size_t simd_width = xsimd::batch<double>::size;
+    std::vector<std::future<void>> futures;
 
-    #pragma omp parallel for
     for (size_t i = 0; i + simd_width - 1 < num_options; i += simd_width) {
-        xsimd::batch<double> price_batch(&prices[i]);
-        xsimd::batch<double> strike_batch(&strikes[i]);
-        xsimd::batch<double> time_batch(&times[i]);
-        xsimd::batch<double> rate_batch(&rates[i]);
-        xsimd::batch<double> volatility_batch(&volatilities[i]);
+        futures.push_back(std::async(std::launch::async, [&, i]() {
+            auto price_batch      = xsimd::load_aligned(&prices[i]);
+            auto strike_batch     = xsimd::load_aligned(&strikes[i]);
+            auto time_batch       = xsimd::load_aligned(&times[i]);
+            auto rate_batch       = xsimd::load_aligned(&rates[i]);
+            auto volatility_batch = xsimd::load_aligned(&volatilities[i]);
 
-        xsimd::batch<double> call_result, put_result;
-        black_scholes_simd(price_batch, strike_batch, time_batch, rate_batch, volatility_batch, call_result, put_result);
+            xsimd::batch<double> call_result;
 
-        for (size_t j = 0; j < simd_width; ++j) {
-            results[i + j] = (types[i + j] == OptionType::CALL) ? call_result.get(j) : put_result.get(j);
-        }
+            black_scholes_simd_calls(price_batch, strike_batch, time_batch, rate_batch, volatility_batch, call_result);
+
+            for (size_t j = 0; j < simd_width; ++j) {
+                results[i + j] = call_result.get(j);
+            }
+        }));
+    }
+
+    for (auto& future : futures) {
+        future.get();
     }
 
     // note that num_options & ~(simd_width - 1) rounds down num_options to largest multiple of simd_width without exceeding num_options
     for (size_t i = num_options & ~(simd_width - 1); i < num_options; ++i) {
-        results[i] = black_scholes(types[i], strikes[i], prices[i], times[i], rates[i], volatilities[i]);
+        results[i] = black_scholes(OptionType::CALL, strikes[i], prices[i], times[i], rates[i], volatilities[i]);
     }
 
     return results;
