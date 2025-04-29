@@ -12,6 +12,9 @@ set(CMAKE_BUILD_TYPE Release)
 # Add include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+# Find Eigen package
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 # Source files
 file(GLOB SOURCES "src/cpp/*/*.cpp")
 
@@ -24,20 +27,31 @@ add_library(finmath_library SHARED ${SOURCES}
     "include/finmath/TimeSeries/rolling_volatility.h"
     "include/finmath/TimeSeries/simple_moving_average.h"
     "include/finmath/TimeSeries/rsi.h"
-    "include/finmath/TimeSeries/ema.h")
+    "include/finmath/TimeSeries/ema.h"
+    "include/finmath/StatisticalModels/pca.h"
+    "include/finmath/StatisticalModels/garch.h")
+
+# Link Eigen to the main library
+target_link_libraries(finmath_library PUBLIC Eigen3::Eigen)
 
 # Test executables
 add_executable(black_scholes_test test/OptionPricing/black_scholes_test.cpp)
-target_link_libraries(black_scholes_test finmath_library)
+target_link_libraries(black_scholes_test finmath_library Eigen3::Eigen)
 
 add_executable(binomial_option_pricing_test test/OptionPricing/binomial_option_pricing_test.cpp)
-target_link_libraries(binomial_option_pricing_test finmath_library)
+target_link_libraries(binomial_option_pricing_test finmath_library Eigen3::Eigen)
 
 add_executable(compound_interest_test test/InterestAndAnnuities/compound_interest_test.cpp)
-target_link_libraries(compound_interest_test finmath_library)
+target_link_libraries(compound_interest_test finmath_library Eigen3::Eigen)
 
 add_executable(rsi_test test/TimeSeries/rsi_test.cpp)
-target_link_libraries(rsi_test finmath_library)
+target_link_libraries(rsi_test finmath_library Eigen3::Eigen)
+
+add_executable(pca_test test/StatisticalModels/pca_test.cpp)
+target_link_libraries(pca_test finmath_library Eigen3::Eigen)
+
+add_executable(garch_test test/StatisticalModels/garch_test.cpp)
+target_link_libraries(garch_test finmath_library Eigen3::Eigen)
 
 # Test runner
 add_executable(run_all_tests test/test_runner.cpp)
@@ -50,6 +64,8 @@ add_test(NAME BlackScholesTest COMMAND black_scholes_test)
 add_test(NAME BinomialOptionPricingTest COMMAND binomial_option_pricing_test)
 add_test(NAME CompoundInterestTest COMMAND compound_interest_test)
 add_test(NAME RSITest COMMAND rsi_test)
+add_test(NAME PCATest COMMAND pca_test)
+add_test(NAME GARCHTest COMMAND garch_test)
 
 # Add a custom target to run all tests
 add_custom_target(build_and_test
@@ -57,6 +73,8 @@ add_custom_target(build_and_test
     COMMAND ${CMAKE_COMMAND} --build . --target binomial_option_pricing_test
     COMMAND ${CMAKE_COMMAND} --build . --target compound_interest_test
     COMMAND ${CMAKE_COMMAND} --build . --target rsi_test
+    COMMAND ${CMAKE_COMMAND} --build . --target pca_test
+    COMMAND ${CMAKE_COMMAND} --build . --target garch_test
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
