@@ -1,15 +1,18 @@
 import pytest
 import numpy as np
+import pandas as pd
 import finmath
 
 # Test data
 prices_list = [100, 101, 102, 100, 99, 98, 100, 102, 103, 104, 105]
 prices_np = np.array(prices_list, dtype=np.float64)
+prices_pd = pd.Series(prices_list, dtype=np.float64)
 window = 5
 smoothing = 0.5 # Example smoothing factor
 
 constant_prices = [100.0] * 20
 constant_prices_np = np.array(constant_prices)
+constant_prices_pd = pd.Series(constant_prices)
 
 # Use list versions to get expected results
 expected_ema_w = finmath.ema_window(prices_list, window)
@@ -31,6 +34,13 @@ def test_ema_window_numpy_input():
     assert len(result_np) == len(expected_ema_w)
     np.testing.assert_allclose(result_np, expected_ema_w, rtol=1e-6)
 
+def test_ema_window_pandas_input():
+    """Tests EMA (window) with Pandas Series input."""
+    result_pd = finmath.ema_window(prices_pd, window)
+    assert isinstance(result_pd, list)
+    assert len(result_pd) == len(expected_ema_w)
+    np.testing.assert_allclose(result_pd, expected_ema_w, rtol=1e-6)
+
 def test_ema_window_constant():
     """EMA (window) of constant series should be constant."""
     # List
@@ -43,6 +53,11 @@ def test_ema_window_constant():
     assert len(res_np) == len(expected_ema_w_const)
     np.testing.assert_allclose(res_np, expected_ema_w_const)
     assert all(abs(x - 100.0) < 1e-9 for x in res_np)
+    # Pandas
+    res_pd = finmath.ema_window(constant_prices_pd, window)
+    assert len(res_pd) == len(expected_ema_w_const)
+    np.testing.assert_allclose(res_pd, expected_ema_w_const)
+    assert all(abs(x - 100.0) < 1e-9 for x in res_pd)
 
 def test_ema_window_edge_cases():
     # List
@@ -56,6 +71,11 @@ def test_ema_window_edge_cases():
     print("Skipping empty NumPy array test for EMA Window...")
     with pytest.raises(RuntimeError, match="Input array must be 1-dimensional"):
         finmath.ema_window(np.array([[1.0]]), 5)
+    # Pandas
+    with pytest.raises(RuntimeError, match="EMA window cannot be zero"):
+        finmath.ema_window(pd.Series([1.0]), 0)
+    assert finmath.ema_window(pd.Series([]), 5) == []
+    print("Skipping empty Pandas Series test for EMA Window...")
 
 # --- EMA Smoothing Factor Tests --- 
 
@@ -71,6 +91,13 @@ def test_ema_smoothing_numpy_input():
     assert len(result_np) == len(expected_ema_s)
     np.testing.assert_allclose(result_np, expected_ema_s, rtol=1e-6)
 
+def test_ema_smoothing_pandas_input():
+    """Tests EMA (smoothing) with Pandas Series input."""
+    result_pd = finmath.ema_smoothing(prices_pd, smoothing)
+    assert isinstance(result_pd, list)
+    assert len(result_pd) == len(expected_ema_s)
+    np.testing.assert_allclose(result_pd, expected_ema_s, rtol=1e-6)
+
 def test_ema_smoothing_constant():
     """EMA (smoothing) of constant series should be constant."""
     # List
@@ -83,6 +110,11 @@ def test_ema_smoothing_constant():
     assert len(res_np) == len(expected_ema_s_const)
     np.testing.assert_allclose(res_np, expected_ema_s_const)
     assert all(abs(x - 100.0) < 1e-9 for x in res_np)
+    # Pandas
+    res_pd = finmath.ema_smoothing(constant_prices_pd, smoothing)
+    assert len(res_pd) == len(expected_ema_s_const)
+    np.testing.assert_allclose(res_pd, expected_ema_s_const)
+    assert all(abs(x - 100.0) < 1e-9 for x in res_pd)
 
 def test_ema_smoothing_edge_cases():
     # List
@@ -98,5 +130,10 @@ def test_ema_smoothing_edge_cases():
         finmath.ema_smoothing(np.array([1.0]), 1.5)
     assert finmath.ema_smoothing(np.array([]), 0.5) == []
     print("Skipping empty NumPy array test for EMA Smoothing...")
-    with pytest.raises(RuntimeError, match="Input array must be 1-dimensional"):
-        finmath.ema_smoothing(np.array([[1.0]]), 0.5) 
+    # Pandas
+    with pytest.raises(RuntimeError, match="EMA smoothing factor must be between 0 and 1"):
+        finmath.ema_smoothing(pd.Series([1.0]), 0)
+    with pytest.raises(RuntimeError, match="EMA smoothing factor must be between 0 and 1"):
+        finmath.ema_smoothing(pd.Series([1.0]), 1.5)
+    assert finmath.ema_smoothing(pd.Series([]), 0.5) == []
+    print("Skipping empty Pandas Series test for EMA Smoothing...") 

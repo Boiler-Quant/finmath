@@ -37,30 +37,30 @@ PYBIND11_MODULE(finmath, m)
       // Bind rolling volatility
       m.def("rolling_volatility", &rolling_volatility, "Rolling Volatility (List input)",
             py::arg("prices"), py::arg("window_size"));
-      m.def("rolling_volatility", &rolling_volatility_np, "Rolling Volatility (NumPy input)",
-            py::arg("prices").noconvert(), py::arg("window_size"));
+      m.def("rolling_volatility", &rolling_volatility_np, "Rolling Volatility (NumPy/Pandas input)",
+            py::arg("prices"), py::arg("window_size"));
 
       // Bind simple moving average
       m.def("simple_moving_average", &simple_moving_average, "Simple Moving Average (List input)",
             py::arg("prices"), py::arg("window_size"));
-      m.def("simple_moving_average", &simple_moving_average_np, "Simple Moving Average (NumPy input)",
-            py::arg("prices").noconvert(), py::arg("window_size"));
+      m.def("simple_moving_average", &simple_moving_average_np, "Simple Moving Average (NumPy/Pandas input)",
+            py::arg("prices"), py::arg("window_size"));
 
       // Bind RSI
       m.def("smoothed_rsi", &compute_smoothed_rsi, "Relative Strength Index(RSI) (List input)",
             py::arg("prices"), py::arg("window_size"));
-      m.def("smoothed_rsi", &compute_smoothed_rsi_np, "Relative Strength Index(RSI) (NumPy input)",
-            py::arg("prices").noconvert(), py::arg("window_size"));
+      m.def("smoothed_rsi", &compute_smoothed_rsi_np, "Relative Strength Index(RSI) (NumPy/Pandas input)",
+            py::arg("prices"), py::arg("window_size"));
 
       // Bind EMA (window)
       m.def("ema_window", &compute_ema, "Exponential Moving Average - Window (List input)",
             py::arg("prices"), py::arg("window_size"));
-      m.def("ema_window", &compute_ema_np, "Exponential Moving Average - Window (NumPy input)",
-            py::arg("prices").noconvert(), py::arg("window_size"));
+      m.def("ema_window", &compute_ema_np, "Exponential Moving Average - Window (NumPy/Pandas input)",
+            py::arg("prices"), py::arg("window_size"));
 
       // Bind EMA (smoothing factor)
       m.def("ema_smoothing", &compute_ema_with_smoothing, "Exponential Moving Average - Smoothing Factor (List input)",
             py::arg("prices"), py::arg("smoothing_factor"));
-      m.def("ema_smoothing", &compute_ema_with_smoothing_np, "Exponential Moving Average - Smoothing Factor (NumPy input)",
-            py::arg("prices").noconvert(), py::arg("smoothing_factor"));
+      m.def("ema_smoothing", &compute_ema_with_smoothing_np, "Exponential Moving Average - Smoothing Factor (NumPy/Pandas input)",
+            py::arg("prices"), py::arg("smoothing_factor"));
 }
