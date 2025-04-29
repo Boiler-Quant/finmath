@@ -62,13 +62,18 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(pybind11 xsimd)
 
+# Add xsimd include directories AFTER it's available
+target_include_directories(finmath_library PRIVATE ${xsimd_SOURCE_DIR}/include)
+target_include_directories(runTests PRIVATE ${xsimd_SOURCE_DIR}/include)
+
 # Create the Python bindings target
 pybind11_add_module(finmath_bindings src/python_bindings.cpp ${SOURCES})
+
+# Add xsimd include directory to the bindings target AFTER it's created
+target_include_directories(finmath_bindings PRIVATE ${xsimd_SOURCE_DIR}/include)
 
 # Set the output name of the bindings to 'finmath' to match your desired module name
 set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")
 
 # Link the Python bindings target with the C++ library
 target_link_libraries(finmath_bindings PRIVATE finmath_library)
-
-target_include_directories(finmath_library PRIVATE ${xsimd_SOURCE_DIR}/include)
