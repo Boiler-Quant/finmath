@@ -57,7 +57,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     xsimd
     GIT_REPOSITORY https://github.com/xtensor-stack/xsimd.git
-    GIT_TAG 9.0.1
+    GIT_TAG 11.0.0
 )
 
 FetchContent_MakeAvailable(pybind11 xsimd)

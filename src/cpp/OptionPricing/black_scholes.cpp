@@ -82,11 +82,6 @@ inline void black_scholes_simd_calls(
     call_result = price * cdf_d1 - disc_factor * strike * cdf_d2;
 }
 
-// Ensure memory is aligned when using simd
-template <typename T>
-using AlignedVector = std::vector<T, xsimd::aligned_allocator<T>>;
-
-
 // Efficient method to price multiple options (uses omp for multi threading, and simd for parallel computation in a thread)
 AlignedVector<double> black_scholes_multiple_calls(
     const AlignedVector<double>& strikes,

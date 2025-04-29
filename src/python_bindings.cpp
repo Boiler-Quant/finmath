@@ -31,6 +31,9 @@ PYBIND11_MODULE(finmath, m) {
     m.def("binomial_option_pricing", &binomial_option_pricing, "Binomial Option Pricing",
           py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"));
 
+    m.def("black_scholes_multiple_calls", &black_scholes_multiple_calls, "Black-Scholes Pricing for Multiple Calls",
+          py::arg("strikes"), py::arg("prices"), py::arg("times"), py::arg("rates"), py::arg("volatilities"));
+
     // Bind binomial greeks
     m.def("binom_delta", &Binom::compute_delta, "Calculate the Delta of a Binomial Option",
             py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_S") = -1);
