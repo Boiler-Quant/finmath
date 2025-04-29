@@ -2,3 +2,6 @@ build
 cmake-build-debug
 venv
 .idea
+*.so
+*.pyc
+__pycache__/
