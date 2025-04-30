@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>   // Automatic conversion between Python lists and std::vector
-#include <pybind11/numpy.h> // Add numpy include
+#include <pybind11/stl.h>        // Automatic conversion between Python lists and std::vector
+#include <pybind11/numpy.h>      // Add numpy include
+#include <pybind11/functional.h> // Add functional include for std::function conversion
 
 #include "finmath/InterestAndAnnuities/compound_interest.h"
 #include "finmath/OptionPricing/black_scholes.h"
@@ -9,6 +10,7 @@
 #include "finmath/TimeSeries/simple_moving_average.h"
 #include "finmath/TimeSeries/rsi.h"
 #include "finmath/TimeSeries/ema.h"
+#include "finmath/Optimization/psgd.h" // Include PSGD header
 
 namespace py = pybind11;
 
@@ -63,4 +65,25 @@ PYBIND11_MODULE(finmath, m)
             py::arg("prices"), py::arg("smoothing_factor"));
       m.def("ema_smoothing", &compute_ema_with_smoothing_np, "Exponential Moving Average - Smoothing Factor (NumPy/Pandas input)",
             py::arg("prices"), py::arg("smoothing_factor"));
+
+      // --- Optimization Module ---
+      // Could also be a submodule: auto m_opt = m.def_submodule("optimization", ...);
+      m.def("perturbed_sgd", &finmath::optimization::perturbed_sgd,
+            "Enhanced Perturbed Stochastic Gradient Descent (PSGD-C)",
+            py::arg("stochastic_grad"),
+            py::arg("objective_f"),
+            py::arg("x0"),
+            // Problem params
+            py::arg("ell"),
+            py::arg("rho"),
+            py::arg("eps") = 1e-3,
+            py::arg("sigma") = 0.1,
+            py::arg("delta") = 0.1,
+            // Algo params
+            py::arg("batch_size") = 32,
+            py::arg("step_size_coeff") = 0.5,
+            py::arg("ema_beta") = 0.9,
+            py::arg("max_iters") = 100000,
+            py::arg("grad_clip_norm") = 10.0,
+            py::arg("param_clip_norm") = 100.0);
 }

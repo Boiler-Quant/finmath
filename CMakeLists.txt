@@ -18,6 +18,8 @@ file(GLOB SOURCES "src/cpp/*/*.cpp")
 # Create the main C++ library target with a unique name
 add_library(finmath_library SHARED ${SOURCES}
     "src/cpp/InterestAndAnnuities/simple_interest.cpp"
+    "src/cpp/Optimization/psgd.cpp"             # Add PSGD source
+    "src/cpp/Optimization/linalg_helpers.cpp" # Add linalg helpers
     "include/finmath/InterestAndAnnuities/simple_interest.h"
     "include/finmath/OptionPricing/options_pricing.h"
     "include/finmath/OptionPricing/options_pricing_types.h"
