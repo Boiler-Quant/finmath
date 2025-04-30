@@ -3,70 +3,79 @@
 #include <limits>
 #include <algorithm>
 
+// https://cp-algorithms.com/graph/finding-negative-cycle-in-graph.html
+
 template <typename Node>
 std::vector<Node> detectArbitrageBellman(const AdjList<Node>& graph) {
     std::vector<Node> cycle;
 
-    // contruct graph with negative log of edges (edge is transformation ratio)
+    // get modified graph which has edge weights of negative log of original graph's edge weights
     AdjList<Node> logGraph;
     for (const auto& [from, neighbors] : graph) {
         for (const auto& [to, rate] : neighbors) {
-            if (rate <= 0.0) continue; // Avoid invalid exchange rates
-            double logWeight = -std::log(rate);  // Apply -log(rate) to each edge weight
-            logGraph[from].emplace_back(to, logWeight);
+            if (rate <= 0.0) {
+                continue;
+            }
+            double weight = -std::log(rate);
+            logGraph[from].emplace_back(to, weight);
         }
     }
-
-    std::unordered_map<Node, double> dist;
-    std::unordered_map<Node, Node> parent;
 
     if (logGraph.empty()) {
         return cycle;
     }
 
+    std::unordered_map<Node, double> dist;
+    std::unordered_map<Node, Node> parent;
+
     for (const auto& [node, _] : logGraph) {
-        dist[node] = std::numeric_limits<double>::infinity();
+        dist[node] = 0.0;  // Start all at 0 to catch any negative cycle
         parent[node] = node;
     }
 
-    Node start = logGraph.begin()->first;
-    dist[start] = 0.0;
+    int numVertices = static_cast<int>(logGraph.size());
 
-    int num_vertices = static_cast<int>(logGraph.size());
+    // relax edges
+    Node lastUpdated;
+    for (int i = 0; i < numVertices; ++i) {
+        lastUpdated = Node();  // reset
+        bool anyUpdate = false;
 
-    for (int i = 0; i < num_vertices - 1; ++i) {
         for (const auto& [node, neighbors] : logGraph) {
             for (const auto& [next_node, weight] : neighbors) {
                 if (dist[node] + weight < dist[next_node]) {
                     dist[next_node] = dist[node] + weight;
                     parent[next_node] = node;
+                    lastUpdated = next_node;
+                    anyUpdate = true;
                 }
             }
+        }
+
+        if (!anyUpdate) {
+            return cycle;
         }
     }
 
-    // Check for negative cycle
-    for (const auto& [node, neighbors] : logGraph) {
-        for (const auto& [next_node, weight] : neighbors) {
-            if (dist[node] + weight < dist[next_node]) {
-                // Found cycle
-                Node curr_node = next_node;
+    // negative weight cycle if we can still relax an edge
+    if (lastUpdated != Node()) {
+        Node cycleStart = lastUpdated;
 
-                std::unordered_set<Node> seenNodes;
-
-                while (seenNodes.find(curr_node) == seenNodes.end()) {
-                    cycle.push_back(curr_node);
-                    seenNodes.insert(curr_node);
-                    curr_node = parent[curr_node];
-                }
-
-
-                cycle.push_back(curr_node);
-
-                std::reverse(cycle.begin(), cycle.end());
-                return cycle;
-            }
+        for (int i = 0; i < numVertices; ++i) {
+            cycleStart = parent[cycleStart];
         }
+
+        Node curr = cycleStart;
+
+        do {
+            cycle.push_back(curr);
+            curr = parent[curr];
+        } while (curr != cycleStart);
+
+        cycle.push_back(cycleStart);
+        std::reverse(cycle.begin(), cycle.end());
+
+        return cycle;
     }
 
     return cycle;
