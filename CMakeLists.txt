@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add debugging symbols (set to Release for optimized performance if needed)
 set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native -ftree-vectorize")
+
 
 # Add include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)

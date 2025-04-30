@@ -18,6 +18,14 @@ AlignedVector<double> black_scholes_multiple_calls(
     const AlignedVector<double>& rates,
     const AlignedVector<double>& volatilities);
 
+std::vector<double> black_scholes_multiple_calls_basic(
+    const std::vector<double>& strikes,
+    const std::vector<double>& prices,
+    const std::vector<double>& times,
+    const std::vector<double>& rates,
+    const std::vector<double>& volatilities
+);
+
 namespace BlackScholes {
     double compute_delta(OptionType type, double S0, double K, double t, double r, double q, double sigma);
     double compute_gamma(double S0, double K, double t, double r, double q, double sigma);

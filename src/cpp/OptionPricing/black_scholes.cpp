@@ -53,11 +53,11 @@ inline xsimd::batch<double> black_scholes_simd(
 */
 
 inline void black_scholes_simd_calls(
-    xsimd::batch<double> price, 
-    xsimd::batch<double> strike, 
-    xsimd::batch<double> time,
-    xsimd::batch<double> rate, 
-    xsimd::batch<double> volatility, 
+    xsimd::batch<double>& price, 
+    xsimd::batch<double>& strike, 
+    xsimd::batch<double>& time,
+    xsimd::batch<double>& rate, 
+    xsimd::batch<double>& volatility, 
     xsimd::batch<double>& call_result)
 {
     // Compute common terms for Black-Scholes.
@@ -82,6 +82,7 @@ inline void black_scholes_simd_calls(
     call_result = price * cdf_d1 - disc_factor * strike * cdf_d2;
 }
 
+/*
 // Efficient method to price multiple options (uses omp for multi threading, and simd for parallel computation in a thread)
 AlignedVector<double> black_scholes_multiple_calls(
     const AlignedVector<double>& strikes,
@@ -121,6 +122,60 @@ AlignedVector<double> black_scholes_multiple_calls(
 
     // note that num_options & ~(simd_width - 1) rounds down num_options to largest multiple of simd_width without exceeding num_options
     for (size_t i = num_options & ~(simd_width - 1); i < num_options; ++i) {
+        results[i] = black_scholes(OptionType::CALL, strikes[i], prices[i], times[i], rates[i], volatilities[i]);
+    }
+
+    return results;
+}
+*/
+
+AlignedVector<double> black_scholes_multiple_calls(
+    const AlignedVector<double>& strikes,
+    const AlignedVector<double>& prices,
+    const AlignedVector<double>& times,
+    const AlignedVector<double>& rates,
+    const AlignedVector<double>& volatilities) {
+
+    size_t num_options = prices.size();
+    AlignedVector<double> results(num_options);
+
+    // SIMD batch size (depends on cpu architecture)
+    constexpr size_t simd_width = xsimd::batch<double>::size;
+
+    for (size_t i = 0; i + simd_width - 1 < num_options; i += simd_width) {
+        auto price_batch      = xsimd::load_aligned(&prices[i]);
+        auto strike_batch     = xsimd::load_aligned(&strikes[i]);
+        auto time_batch       = xsimd::load_aligned(&times[i]);
+        auto rate_batch       = xsimd::load_aligned(&rates[i]);
+        auto volatility_batch = xsimd::load_aligned(&volatilities[i]);
+
+        xsimd::batch<double> call_result;
+
+        black_scholes_simd_calls(price_batch, strike_batch, time_batch, rate_batch, volatility_batch, call_result);
+
+        for (size_t j = 0; j < simd_width; ++j) {
+            results[i + j] = call_result.get(j);
+        }
+    }
+
+    // Handle any remaining options that don't fit into a SIMD batch
+    for (size_t i = num_options & ~(simd_width - 1); i < num_options; ++i) {
+        results[i] = black_scholes(OptionType::CALL, strikes[i], prices[i], times[i], rates[i], volatilities[i]);
+    }
+
+    return results;
+}
+
+std::vector<double> black_scholes_multiple_calls_basic(
+    const std::vector<double>& strikes,
+    const std::vector<double>& prices,
+    const std::vector<double>& times,
+    const std::vector<double>& rates,
+    const std::vector<double>& volatilities) {
+    size_t num_options = prices.size();
+    std::vector<double> results(num_options);
+
+    for (size_t i = 0; i < num_options; ++i) {
         results[i] = black_scholes(OptionType::CALL, strikes[i], prices[i], times[i], rates[i], volatilities[i]);
     }
 
