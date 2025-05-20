@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15...4.0)
+cmake_minimum_required(VERSION 3.15)
 
 project(finmath LANGUAGES CXX)
 
@@ -16,15 +16,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB SOURCES "src/cpp/*/*.cpp")
 
 # Create the main C++ library target with a unique name
-add_library(finmath_library SHARED ${SOURCES}
-    "src/cpp/InterestAndAnnuities/simple_interest.cpp"
-    "include/finmath/InterestAndAnnuities/simple_interest.h"
-    "include/finmath/OptionPricing/options_pricing.h"
-    "include/finmath/OptionPricing/options_pricing_types.h"
-    "include/finmath/TimeSeries/rolling_volatility.h"
-    "include/finmath/TimeSeries/simple_moving_average.h"
-    "include/finmath/TimeSeries/rsi.h"
-    "include/finmath/TimeSeries/ema.h")
+add_library(finmath_library SHARED ${SOURCES})
 
 # Test executables
 add_executable(black_scholes_test test/OptionPricing/black_scholes_test.cpp)
@@ -100,6 +92,13 @@ if(APPLE)
             BUILD_WITH_INSTALL_RPATH TRUE
             INSTALL_RPATH "@loader_path"
     )
+elseif(UNIX) # Linux
+    # $ORIGIN tells the dynamic linker to look for the library
+    # in the same directory as the binary (finmath_bindings module).
+    # auditwheel will usually refine this.
+    set(_INSTALL_RPATH "$ORIGIN")
+else() # Windows or other OS where RPATH is not standard
+    set(_INSTALL_RPATH "")
 endif()
 
 message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
