@@ -26,3 +26,11 @@ jobs:
 
       - name: Build wheels
         run: cibuildwheel --output-dir dist .
+
+      - name: Upload wheels artifact
+        uses: actions/upload-artifact@v4 # Updated to v4
+        with:
+          name: wheels-${{ matrix.os }} # Creates an artifact named e.g., "wheels-ubuntu-latest"
+          path: dist/*.whl # Uploads all .whl files from the 'dist' directory
+          if-no-files-found: error # Optional: Fails the step if no wheels are found
+
