@@ -96,6 +96,15 @@ elseif(UNIX) # Linux
     # $ORIGIN tells the dynamic linker to look for the library
     # in the same directory as the binary (finmath_bindings module).
     # auditwheel will usually refine this.
+    set_target_properties(finmath_bindings PROPERTIES
+            BUILD_RPATH "$ORIGIN"
+    )
+    set_target_properties(finmath_bindings PROPERTIES
+            INSTALL_RPATH "$ORIGIN"
+    )
+    set_target_properties(finmath_library PROPERTIES
+            INSTALL_RPATH "$ORIGIN"
+    )
     set(_INSTALL_RPATH "$ORIGIN")
 else() # Windows or other OS where RPATH is not standard
     set(_INSTALL_RPATH "")
