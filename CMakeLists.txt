@@ -12,6 +12,12 @@ set(CMAKE_BUILD_TYPE Release)
 # Add include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+# For MSVC, define _USE_MATH_DEFINES to get M_PI etc. from <cmath>
+if(MSVC)
+    add_compile_definitions(_USE_MATH_DEFINES)
+    message(STATUS "MSVC detected, adding _USE_MATH_DEFINES compile definition.")
+endif()
+
 # Source files
 file(GLOB SOURCES "src/cpp/*/*.cpp")
 
