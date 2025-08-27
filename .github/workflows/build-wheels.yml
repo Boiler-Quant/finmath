@@ -10,7 +10,7 @@ jobs:
   build_wheels:
     strategy:
       matrix:
-        os: [ windows-latest]
+        os: [ ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
