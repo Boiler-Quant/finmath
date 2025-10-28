@@ -1,7 +1,34 @@
-build
-cmake-build-debug
-venv
-.idea
-*.so
-*.pyc
+# Build directories
+build/
+cmake-build-debug/
+.cmake/
+
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+*.egg
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Test outputs
+*.log
