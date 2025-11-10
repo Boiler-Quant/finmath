@@ -9,6 +9,12 @@
 #include "finmath/TimeSeries/rsi.h"
 #include "finmath/TimeSeries/ema.h"
 
+#include "finmath/InterestAndAnnuities/discount_factor.h"
+#include "finmath/InterestAndAnnuities/present_future_value.h"
+#include "finmath/InterestAndAnnuities/annuity.h"
+#include "finmath/InterestAndAnnuities/cash_flow.h"
+#include "finmath/FixedIncome/bond_pricing.h"
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(finmath, m) {
@@ -81,4 +87,34 @@ PYBIND11_MODULE(finmath, m) {
 
     m.def("ema_smoothing", &compute_ema_with_smoothing, "Exponential Moving Average - Smoothing Factor",
             py::arg("prices"), py::arg("smoothing_factor"));
+
+    // Discount factors
+    m.def("discount_factor", &discount_factor,
+          "Discount factor (discrete compounding)",
+          py::arg("rate"), py::arg("time"));
+
+    m.def("discount_factor_continuous", &discount_factor_continuous,
+          "Discount factor (continuous compounding)",
+          py::arg("rate"), py::arg("time"));
+
+    m.def("future_value_factor", &future_value_factor,
+          "Future value factor",
+          py::arg("rate"), py::arg("time"));
+
+    //Present and future value
+    m.def("present_value", &present_value,
+          "Present value with discrete compounding",
+           py::arg("future_value"), py::arg("rate"), py::arg("time"));
+
+    m.def("future_value", &future_value,
+          "Future value with discrete compounding",
+           py::arg("present_value"), py::arg("rate"), py::arg("time"));
+
+    m.def("present_value_continuous", &present_value_continuous,
+          "Present value with continuous compounding",
+           py::arg("future_value"), py::arg("rate"), py::arg("time"));
+
+    m.def("future_value_continuous", &future_value_continuous,
+          "Future value with continuous compounding",
+           py::arg("present_value"), py::arg("rate"), py::arg("time"));
 }
