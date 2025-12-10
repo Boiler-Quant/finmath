@@ -1,3 +1,4 @@
+#include <vector>
 /**
  * Net Present Value
  * Calculates the present value of all cash flows

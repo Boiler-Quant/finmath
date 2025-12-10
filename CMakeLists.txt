@@ -27,7 +27,10 @@ add_library(finmath_library SHARED ${SOURCES}
     "include/finmath/TimeSeries/ema.h"
     "include/finmath/TimeSeries/rolling_std_dev.h"
     "include/finmath/InterestAndAnnuities/discount_factor.h"
-    "include/finmath/InterestAndAnnuities/present_future_value.h")
+    "include/finmath/InterestAndAnnuities/present_future_value.h"
+    "include/finmath/InterestAndAnnuities/annuity.h"
+    "include/finmath/InterestAndAnnuities/cash_flow.h"
+    "include/finmath/FixedIncome/bond_pricing.h")
 
 # Test executables
 add_executable(black_scholes_test test/OptionPricing/black_scholes_test.cpp)
@@ -51,6 +54,9 @@ target_link_libraries(discount_factor_test finmath_library)
 add_executable(present_future_value_test test/InterestAndAnnuities/present_future_value_test.cpp)
 target_link_libraries(present_future_value_test finmath_library)
 
+add_executable(bond_pricing_test test/FixedIncome/bond_pricing_test.cpp)
+target_link_libraries(bond_pricing_test finmath_library)
+
 # Test runner
 add_executable(run_all_tests test/test_runner.cpp)
 
@@ -65,6 +71,7 @@ add_test(NAME RSITest COMMAND rsi_test)
 add_test(NAME RollingStdDevTest COMMAND rolling_std_dev_test)
 add_test(NAME DiscountFactorTest COMMAND discount_factor_test)
 add_test(NAME PresentFutureValueTest COMMAND present_future_value_test)
+add_test(NAME BondPricingTest COMMAND bond_pricing_test)
 
 # Add a custom target to run all tests
 add_custom_target(build_and_test
@@ -74,6 +81,7 @@ add_custom_target(build_and_test
     COMMAND ${CMAKE_COMMAND} --build . --target rsi_test
     COMMAND ${CMAKE_COMMAND} --build . --target discount_factor_test
     COMMAND ${CMAKE_COMMAND} --build . --target present_future_value_test
+    COMMAND ${CMAKE_COMMAND} --build . --target bond_pricing_test
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
