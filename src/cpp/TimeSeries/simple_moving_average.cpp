@@ -2,9 +2,6 @@
 #include <pybind11/numpy.h>    // Include numpy header
 #include <pybind11/pybind11.h> // Include core pybind11 header for exceptions
 
-#include <algorithm>
-#include <cmath>
-#include <iostream>
 #include <numeric>
 #include <vector>
 
@@ -15,15 +12,11 @@ std::vector<double> simple_moving_average(const std::vector<double> &data, size_
     // Check for valid window size
     if (window_size == 0)
     {
-        // std::cerr << "Window size must be greater than 0." << std::endl;
-        // return averages;
-        throw std::runtime_error("Window size must be greater than 0."); // Throw exception
+        throw std::runtime_error("Window size must be greater than 0.");
     }
 
     if (data.size() < window_size)
     {
-        // std::cerr << "Data size is smaller than the window size." << std::endl;
-        // Return empty vector for consistency with _np version
         return {};
     }
 

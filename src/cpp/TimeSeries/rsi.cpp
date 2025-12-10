@@ -4,7 +4,6 @@
 
 #include <numeric>
 #include <cmath>
-#include <algorithm>
 
 double compute_avg_gain(const std::vector<double> &price_changes, size_t start, size_t window_size)
 {

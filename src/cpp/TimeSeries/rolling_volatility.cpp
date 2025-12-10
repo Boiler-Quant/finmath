@@ -1,11 +1,9 @@
 #include "finmath/TimeSeries/rolling_volatility.h"
+#include "finmath/Helper/simd_helper.h"
 #include <pybind11/numpy.h>    // Include numpy header
 #include <pybind11/pybind11.h> // Include core pybind11 header for exceptions
 
-#include <algorithm>
 #include <cmath>
-#include <iostream>
-#include <numeric>
 #include <vector>
 
 // Function to compute the logarithmic returns
@@ -19,12 +17,15 @@ std::vector<double> compute_log_returns(const std::vector<double> &prices)
     return log_returns;
 }
 
-// Function to compute the standard deviation of a vector
+// Function to compute the standard deviation of a vector (using SIMD when possible)
 double compute_std(const std::vector<double> &data)
 {
-    double mean = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
-    double sq_sum = std::inner_product(data.begin(), data.end(), data.begin(), 0.0);
-    return std::sqrt(sq_sum / data.size() - mean * mean);
+    if (data.empty()) {
+        return 0.0;
+    }
+    
+    // Use SIMD-accelerated standard deviation calculation
+    return finmath::simd::vector_stddev(data.data(), data.size());
 }
 
 // Function to compute rolling volatility
@@ -127,14 +128,14 @@ std::vector<double> rolling_volatility_np(py::array_t<double> prices_arr, size_t
         throw std::runtime_error("Window size is larger than the number of log returns.");
     }
 
-    // 2. Rolling window calculation using the existing compute_std
+    // 2. Rolling window calculation using SIMD-accelerated stddev
     for (size_t i = 0; i <= log_returns.size() - window_size; ++i)
     {
-        // Create a temporary window vector
-        std::vector<double> window(log_returns.begin() + i, log_returns.begin() + i + window_size);
-
-        // Compute the standard deviation
-        double std_dev = compute_std(window);
+        // Get pointer to current window (zero-copy, no vector creation needed)
+        const double* window_data = &log_returns[i];
+        
+        // Use SIMD-accelerated standard deviation calculation
+        double std_dev = finmath::simd::vector_stddev(window_data, window_size);
 
         // Annualize the standard deviation
         double annualized_vol = std_dev * std::sqrt(252);
