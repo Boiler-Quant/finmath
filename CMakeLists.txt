@@ -33,6 +33,7 @@ add_library(finmath_library SHARED ${SOURCES}
 
 # Link Eigen to the main library
 target_link_libraries(finmath_library PUBLIC Eigen3::Eigen)
+    "include/finmath/TimeSeries/rolling_std_dev.h")
 
 # Test executables
 add_executable(black_scholes_test test/OptionPricing/black_scholes_test.cpp)
@@ -53,6 +54,9 @@ target_link_libraries(pca_test finmath_library Eigen3::Eigen)
 add_executable(garch_test test/StatisticalModels/garch_test.cpp)
 target_link_libraries(garch_test finmath_library Eigen3::Eigen)
 
+add_executable(rolling_std_dev_test test/TimeSeries/rolling_std_dev_test.cpp)
+target_link_libraries(rolling_std_dev_test finmath_library)
+
 # Test runner
 add_executable(run_all_tests test/test_runner.cpp)
 
@@ -66,6 +70,7 @@ add_test(NAME CompoundInterestTest COMMAND compound_interest_test)
 add_test(NAME RSITest COMMAND rsi_test)
 add_test(NAME PCATest COMMAND pca_test)
 add_test(NAME GARCHTest COMMAND garch_test)
+add_test(NAME RollingStdDevTest COMMAND rolling_std_dev_test)
 
 # Add a custom target to run all tests
 add_custom_target(build_and_test
