@@ -8,6 +8,7 @@
 #include "finmath/TimeSeries/simple_moving_average.h"
 #include "finmath/TimeSeries/rsi.h"
 #include "finmath/TimeSeries/ema.h"
+#include "finmath/GraphAlgos/bellman_arbitrage.h"
 
 namespace py = pybind11;
 
@@ -81,4 +82,9 @@ PYBIND11_MODULE(finmath, m) {
 
     m.def("ema_smoothing", &compute_ema_with_smoothing, "Exponential Moving Average - Smoothing Factor",
             py::arg("prices"), py::arg("smoothing_factor"));
+
+    m.def("detect_arbitrage", &detectArbitrageBellman<std::string>,
+            "Detect arbitrage opportunities in a currency graph",
+            py::arg("graph"));
+    
 }
