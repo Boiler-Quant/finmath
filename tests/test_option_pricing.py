@@ -48,3 +48,29 @@ def test_black_scholes_vs_binomial_convergence():
         finmath.OptionType.CALL, S0, K, T, r, sigma, 500
     )
     assert abs(bs - bin_price) / max(bs, 1e-9) < 0.05  # within 5%
+
+
+def test_black_scholes_invalid_inputs_return_nan():
+    """Invalid inputs (non-positive price, strike, time or negative vol) return NaN."""
+    import math
+    # Valid call for comparison
+    valid = finmath.black_scholes(
+        finmath.OptionType.CALL, 100.0, 100.0, 1.0, 0.05, 0.2
+    )
+    assert valid > 0 and not math.isnan(valid)
+    # Invalid: zero strike
+    assert math.isnan(
+        finmath.black_scholes(finmath.OptionType.CALL, 0.0, 100.0, 1.0, 0.05, 0.2)
+    )
+    # Invalid: zero spot
+    assert math.isnan(
+        finmath.black_scholes(finmath.OptionType.CALL, 100.0, 0.0, 1.0, 0.05, 0.2)
+    )
+    # Invalid: zero time
+    assert math.isnan(
+        finmath.black_scholes(finmath.OptionType.CALL, 100.0, 100.0, 0.0, 0.05, 0.2)
+    )
+    # Invalid: negative volatility
+    assert math.isnan(
+        finmath.black_scholes(finmath.OptionType.CALL, 100.0, 100.0, 1.0, 0.05, -0.1)
+    )
