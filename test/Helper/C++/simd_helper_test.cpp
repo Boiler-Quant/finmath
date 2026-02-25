@@ -1,284 +1,180 @@
+#include "test_common.h"
 #include "finmath/Helper/simd_helper.h"
-#include <cassert>
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <iterator>
 #include <iostream>
 #include <vector>
-#include <iomanip>
 
-// Helper to compare floating point numbers
-bool approx_equal(double a, double b, double epsilon = 1e-9) {
-    return std::fabs(a - b) <= epsilon * std::max(1.0, std::max(std::fabs(a), std::fabs(b)));
+using namespace finmath_test;
+
+namespace {
+constexpr auto kEpsilon = 1e-9;
+
+template <typename GotIt, typename ExpectedIt>
+bool vectors_near(GotIt got_start, GotIt got_end, ExpectedIt expected_start, ExpectedIt expected_end) {
+    return std::distance(got_start, got_end) == std::distance(expected_start, expected_end) &&
+           std::equal(got_start, got_end, expected_start,
+                     [](double x, double y) { return almost_equal(x, y, kEpsilon); });
 }
+
+template <typename ContainerGot, typename ContainerExpected>
+bool vectors_near(const ContainerGot& got, const ContainerExpected& expected) {
+    return vectors_near(got.begin(), got.end(), expected.begin(), expected.end());
+}
+}  // namespace
 
 int main() {
     std::cout << "Starting SIMD Helper Tests..." << std::endl;
     std::cout << "SIMD Backend: " << finmath::simd::get_simd_backend() << std::endl;
     std::cout << std::endl;
 
-    // Test data
-    std::vector<double> a = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
-    std::vector<double> b = {10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0};
+    const std::vector<double> a = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
+    const std::vector<double> b = {10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0};
     std::vector<double> result(a.size());
 
     // Test 1: Vector Addition
     {
         finmath::simd::vector_add(a.data(), b.data(), result.data(), a.size());
-        std::vector<double> expected = {11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0};
-        
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (!approx_equal(result[i], expected[i])) {
-                std::cerr << "Test 1 (Vector Add) Failed at index " << i 
-                          << ": expected " << expected[i] 
-                          << ", got " << result[i] << std::endl;
-                return 1;
-            }
-        }
+        constexpr std::array expected = {11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0, 11.0};
+        if (!vectors_near(result, expected)) FINMATH_TEST_FAIL("Test 1 (Vector Add)");
         std::cout << "✓ Test 1 (Vector Addition) Passed" << std::endl;
     }
 
     // Test 2: Vector Subtraction
     {
         finmath::simd::vector_sub(a.data(), b.data(), result.data(), a.size());
-        std::vector<double> expected = {-9.0, -7.0, -5.0, -3.0, -1.0, 1.0, 3.0, 5.0, 7.0, 9.0};
-        
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (!approx_equal(result[i], expected[i])) {
-                std::cerr << "Test 2 (Vector Sub) Failed at index " << i 
-                          << ": expected " << expected[i] 
-                          << ", got " << result[i] << std::endl;
-                return 1;
-            }
-        }
+        const std::array expected = {-9.0, -7.0, -5.0, -3.0, -1.0, 1.0, 3.0, 5.0, 7.0, 9.0};
+        if (!vectors_near(result, expected)) FINMATH_TEST_FAIL("Test 2 (Vector Sub)");
         std::cout << "✓ Test 2 (Vector Subtraction) Passed" << std::endl;
     }
 
     // Test 3: Vector Multiplication
     {
         finmath::simd::vector_mul(a.data(), b.data(), result.data(), a.size());
-        std::vector<double> expected = {10.0, 18.0, 24.0, 28.0, 30.0, 30.0, 28.0, 24.0, 18.0, 10.0};
-        
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (!approx_equal(result[i], expected[i])) {
-                std::cerr << "Test 3 (Vector Mul) Failed at index " << i 
-                          << ": expected " << expected[i] 
-                          << ", got " << result[i] << std::endl;
-                return 1;
-            }
-        }
+        const std::array expected = {10.0, 18.0, 24.0, 28.0, 30.0, 30.0, 28.0, 24.0, 18.0, 10.0};
+        if (!vectors_near(result, expected)) FINMATH_TEST_FAIL("Test 3 (Vector Mul)");
         std::cout << "✓ Test 3 (Vector Multiplication) Passed" << std::endl;
     }
 
     // Test 4: Dot Product
     {
-        double result_dot = finmath::simd::dot_product(a.data(), b.data(), a.size());
-        double expected = 220.0; // 1*10 + 2*9 + 3*8 + ... + 10*1
-        
-        if (!approx_equal(result_dot, expected)) {
-            std::cerr << "Test 4 (Dot Product) Failed: expected " << expected 
-                      << ", got " << result_dot << std::endl;
-            return 1;
-        }
+        const auto result_dot = finmath::simd::dot_product(a.data(), b.data(), a.size());
+        FINMATH_TEST_ASSERT_NEAR(result_dot, 220.0, kEpsilon);
         std::cout << "✓ Test 4 (Dot Product) Passed" << std::endl;
     }
 
     // Test 5: Vector Sum
     {
-        double result_sum = finmath::simd::vector_sum(a.data(), a.size());
-        double expected = 55.0; // 1 + 2 + 3 + ... + 10
-        
-        if (!approx_equal(result_sum, expected)) {
-            std::cerr << "Test 5 (Vector Sum) Failed: expected " << expected 
-                      << ", got " << result_sum << std::endl;
-            return 1;
-        }
+        const auto result_sum = finmath::simd::vector_sum(a.data(), a.size());
+        FINMATH_TEST_ASSERT_NEAR(result_sum, 55.0, kEpsilon);
         std::cout << "✓ Test 5 (Vector Sum) Passed" << std::endl;
     }
 
     // Test 6: Vector Mean
     {
-        double result_mean = finmath::simd::vector_mean(a.data(), a.size());
-        double expected = 5.5; // (1 + 2 + ... + 10) / 10
-        
-        if (!approx_equal(result_mean, expected)) {
-            std::cerr << "Test 6 (Vector Mean) Failed: expected " << expected 
-                      << ", got " << result_mean << std::endl;
-            return 1;
-        }
+        const auto result_mean = finmath::simd::vector_mean(a.data(), a.size());
+        FINMATH_TEST_ASSERT_NEAR(result_mean, 5.5, kEpsilon);
         std::cout << "✓ Test 6 (Vector Mean) Passed" << std::endl;
     }
 
     // Test 7: Vector Variance
     {
-        double result_var = finmath::simd::vector_variance(a.data(), a.size());
-        double expected = 8.25; // Variance of 1..10
-        
-        if (!approx_equal(result_var, expected)) {
-            std::cerr << "Test 7 (Vector Variance) Failed: expected " << expected 
-                      << ", got " << result_var << std::endl;
-            return 1;
-        }
+        const auto result_var = finmath::simd::vector_variance(a.data(), a.size());
+        FINMATH_TEST_ASSERT_NEAR(result_var, 8.25, kEpsilon);
         std::cout << "✓ Test 7 (Vector Variance) Passed" << std::endl;
     }
 
     // Test 8: Vector Standard Deviation
     {
-        double result_std = finmath::simd::vector_stddev(a.data(), a.size());
-        double expected = std::sqrt(8.25); // Std dev of 1..10
-        
-        if (!approx_equal(result_std, expected)) {
-            std::cerr << "Test 8 (Vector Std Dev) Failed: expected " << expected 
-                      << ", got " << result_std << std::endl;
-            return 1;
-        }
+        const auto result_std = finmath::simd::vector_stddev(a.data(), a.size());
+        FINMATH_TEST_ASSERT_NEAR(result_std, std::sqrt(8.25), kEpsilon);
         std::cout << "✓ Test 8 (Vector Standard Deviation) Passed" << std::endl;
     }
 
-    // Test 9: Edge case - Empty/Small vectors
+    // Test 9: Edge case - Single element
     {
-        std::vector<double> small = {5.0};
-        double mean = finmath::simd::vector_mean(small.data(), small.size());
-        
-        if (!approx_equal(mean, 5.0)) {
-            std::cerr << "Test 9 (Single Element) Failed" << std::endl;
-            return 1;
-        }
+        const std::array small = {5.0};
+        const auto mean = finmath::simd::vector_mean(small.data(), small.size());
+        FINMATH_TEST_ASSERT_NEAR(mean, 5.0, kEpsilon);
         std::cout << "✓ Test 9 (Edge Cases) Passed" << std::endl;
     }
 
     // Test 10: Vector Scalar Multiplication
     {
-        double scalar = 2.5;
-        finmath::simd::vector_mul_scalar(a.data(), scalar, result.data(), a.size());
-        std::vector<double> expected = {2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, 22.5, 25.0};
-        
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (!approx_equal(result[i], expected[i])) {
-                std::cerr << "Test 10 (Vector Mul Scalar) Failed at index " << i << std::endl;
-                return 1;
-            }
-        }
+        finmath::simd::vector_mul_scalar(a.data(), 2.5, result.data(), a.size());
+        const std::array expected = {2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, 22.5, 25.0};
+        if (!vectors_near(result, expected)) FINMATH_TEST_FAIL("Test 10 (Vector Mul Scalar)");
         std::cout << "✓ Test 10 (Vector Scalar Multiplication) Passed" << std::endl;
     }
 
     // Test 11: Vector Scalar Addition
     {
-        double scalar = 10.0;
-        finmath::simd::vector_add_scalar(a.data(), scalar, result.data(), a.size());
-        std::vector<double> expected = {11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0};
-        
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (!approx_equal(result[i], expected[i])) {
-                std::cerr << "Test 11 (Vector Add Scalar) Failed at index " << i << std::endl;
-                return 1;
-            }
-        }
+        finmath::simd::vector_add_scalar(a.data(), 10.0, result.data(), a.size());
+        const std::array expected = {11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0};
+        if (!vectors_near(result, expected)) FINMATH_TEST_FAIL("Test 11 (Vector Add Scalar)");
         std::cout << "✓ Test 11 (Vector Scalar Addition) Passed" << std::endl;
     }
 
     // Test 12: Vector Division
     {
-        std::vector<double> numerator = {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0};
-        std::vector<double> denominator = {2.0, 4.0, 5.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0};
+        const std::vector<double> numerator = {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0};
+        const std::vector<double> denominator = {2.0, 4.0, 5.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0};
         finmath::simd::vector_div(numerator.data(), denominator.data(), result.data(), numerator.size());
-        std::vector<double> expected = {5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
-        
-        for (size_t i = 0; i < numerator.size(); ++i) {
-            if (!approx_equal(result[i], expected[i])) {
-                std::cerr << "Test 12 (Vector Division) Failed at index " << i << std::endl;
-                return 1;
-            }
-        }
+        const std::array expected = {5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
+        if (!vectors_near(result, expected)) FINMATH_TEST_FAIL("Test 12 (Vector Division)");
         std::cout << "✓ Test 12 (Vector Division) Passed" << std::endl;
     }
 
     // Test 13: Vector Maximum
     {
-        std::vector<double> test_data = {1.0, 5.0, 3.0, 9.0, 2.0, 8.0, 4.0, 7.0, 6.0, 10.0};
-        double max_val = finmath::simd::vector_max(test_data.data(), test_data.size());
-        double expected = 10.0;
-        
-        if (!approx_equal(max_val, expected)) {
-            std::cerr << "Test 13 (Vector Max) Failed: expected " << expected 
-                      << ", got " << max_val << std::endl;
-            return 1;
-        }
+        const std::array test_data = {1.0, 5.0, 3.0, 9.0, 2.0, 8.0, 4.0, 7.0, 6.0, 10.0};
+        const auto max_val = finmath::simd::vector_max(test_data.data(), test_data.size());
+        FINMATH_TEST_ASSERT_NEAR(max_val, 10.0, kEpsilon);
         std::cout << "✓ Test 13 (Vector Maximum) Passed" << std::endl;
     }
 
     // Test 14: Vector Minimum
     {
-        std::vector<double> test_data = {10.0, 5.0, 3.0, 9.0, 2.0, 8.0, 4.0, 7.0, 6.0, 1.0};
-        double min_val = finmath::simd::vector_min(test_data.data(), test_data.size());
-        double expected = 1.0;
-        
-        if (!approx_equal(min_val, expected)) {
-            std::cerr << "Test 14 (Vector Min) Failed: expected " << expected 
-                      << ", got " << min_val << std::endl;
-            return 1;
-        }
+        const std::array test_data = {10.0, 5.0, 3.0, 9.0, 2.0, 8.0, 4.0, 7.0, 6.0, 1.0};
+        const auto min_val = finmath::simd::vector_min(test_data.data(), test_data.size());
+        FINMATH_TEST_ASSERT_NEAR(min_val, 1.0, kEpsilon);
         std::cout << "✓ Test 14 (Vector Minimum) Passed" << std::endl;
     }
 
     // Test 15: Vector Conditional Sum (Positive)
     {
-        std::vector<double> test_data = {-5.0, 10.0, -3.0, 7.0, -2.0, 8.0, -1.0, 5.0, -4.0, 6.0};
-        double sum_positive = finmath::simd::vector_conditional_sum(test_data.data(), test_data.size(), true);
-        double expected = 36.0; // 10 + 7 + 8 + 5 + 6
-        
-        if (!approx_equal(sum_positive, expected)) {
-            std::cerr << "Test 15 (Conditional Sum Positive) Failed: expected " << expected 
-                      << ", got " << sum_positive << std::endl;
-            return 1;
-        }
+        const std::array test_data = {-5.0, 10.0, -3.0, 7.0, -2.0, 8.0, -1.0, 5.0, -4.0, 6.0};
+        const auto sum_positive = finmath::simd::vector_conditional_sum(test_data.data(), test_data.size(), true);
+        FINMATH_TEST_ASSERT_NEAR(sum_positive, 36.0, kEpsilon);
         std::cout << "✓ Test 15 (Vector Conditional Sum - Positive) Passed" << std::endl;
     }
 
     // Test 16: Vector Conditional Sum (Negative)
     {
-        std::vector<double> test_data = {-5.0, 10.0, -3.0, 7.0, -2.0, 8.0, -1.0, 5.0, -4.0, 6.0};
-        double sum_negative = finmath::simd::vector_conditional_sum(test_data.data(), test_data.size(), false);
-        double expected = 15.0; // abs(-5) + abs(-3) + abs(-2) + abs(-1) + abs(-4) = 5 + 3 + 2 + 1 + 4
-        
-        if (!approx_equal(sum_negative, expected)) {
-            std::cerr << "Test 16 (Conditional Sum Negative) Failed: expected " << expected 
-                      << ", got " << sum_negative << std::endl;
-            return 1;
-        }
+        const std::array test_data = {-5.0, 10.0, -3.0, 7.0, -2.0, 8.0, -1.0, 5.0, -4.0, 6.0};
+        const auto sum_negative = finmath::simd::vector_conditional_sum(test_data.data(), test_data.size(), false);
+        FINMATH_TEST_ASSERT_NEAR(sum_negative, 15.0, kEpsilon);
         std::cout << "✓ Test 16 (Vector Conditional Sum - Negative) Passed" << std::endl;
     }
 
-    // Test 17: Large vector to test SIMD performance
+    // Test 17: Large vector
     {
-        const size_t large_size = 10000;
+        constexpr size_t large_size = 10000;
         std::vector<double> large_a(large_size);
         std::vector<double> large_b(large_size);
         std::vector<double> large_result(large_size);
-        
-        // Initialize with some pattern
         for (size_t i = 0; i < large_size; ++i) {
             large_a[i] = static_cast<double>(i);
             large_b[i] = static_cast<double>(large_size - i);
         }
-        
-        // Test addition on large vectors
         finmath::simd::vector_add(large_a.data(), large_b.data(), large_result.data(), large_size);
-        
-        // Verify a few samples
-        bool large_test_passed = true;
-        for (size_t i = 0; i < large_size; i += 1000) {
-            double expected = static_cast<double>(large_size);
-            if (!approx_equal(large_result[i], expected)) {
-                std::cerr << "Test 17 (Large Vector) Failed at index " << i << std::endl;
-                large_test_passed = false;
-                break;
-            }
-        }
-        
-        if (large_test_passed) {
-            std::cout << "✓ Test 17 (Large Vector Operations) Passed" << std::endl;
-        } else {
-            return 1;
-        }
+        const auto expected_val = static_cast<double>(large_size);
+        const bool ok = std::all_of(large_result.begin(), large_result.end(),
+            [expected_val](double x) { return almost_equal(x, expected_val, kEpsilon); });
+        if (!ok) FINMATH_TEST_FAIL("Test 17 (Large Vector)");
+        std::cout << "✓ Test 17 (Large Vector Operations) Passed" << std::endl;
     }
 
     std::cout << std::endl;
