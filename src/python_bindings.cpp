@@ -17,6 +17,11 @@
 
 namespace py = pybind11;
 
+// Forward declarations for NumPy-compatible functions
+std::vector<double> rolling_volatility_np(py::array_t<double> prices_arr, size_t window_size);
+std::vector<double> simple_moving_average_np(py::array_t<double> data_arr, size_t window_size);
+std::vector<double> compute_smoothed_rsi_np(py::array_t<double> prices_arr, size_t window_size);
+
 PYBIND11_MODULE(finmath, m)
 {
       m.doc() = "Financial Math Library";
@@ -66,13 +71,9 @@ PYBIND11_MODULE(finmath, m)
       // Bind EMA (window)
       m.def("ema_window", &compute_ema, "Exponential Moving Average - Window (List input)",
             py::arg("prices"), py::arg("window_size"));
-      m.def("ema_window", &compute_ema_np, "Exponential Moving Average - Window (NumPy/Pandas input)",
-            py::arg("prices"), py::arg("window_size"));
 
       // Bind EMA (smoothing factor)
       m.def("ema_smoothing", &compute_ema_with_smoothing, "Exponential Moving Average - Smoothing Factor (List input)",
-            py::arg("prices"), py::arg("smoothing_factor"));
-      m.def("ema_smoothing", &compute_ema_with_smoothing_np, "Exponential Moving Average - Smoothing Factor (NumPy/Pandas input)",
             py::arg("prices"), py::arg("smoothing_factor"));
       
       // Bind SIMD-optimized EMA
