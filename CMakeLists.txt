@@ -9,6 +9,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Add debugging symbols (set to Release for optimized performance if needed)
 set(CMAKE_BUILD_TYPE Release)
 
+# --- Profiling / performance analysis ---
+# FINMATH_PROFILING=ON: keep debug symbols, frame pointer, suitable for perf/stat/sample
+# FINMATH_INSTRUMENTATION=ON: add -pg for gprof-style instrumentation (optional)
+option(FINMATH_PROFILING "Build with profiling-friendly flags (symbols, frame pointer)" OFF)
+option(FINMATH_INSTRUMENTATION "Build with -pg for gprof instrumentation" OFF)
+if(FINMATH_PROFILING)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fno-omit-frame-pointer")
+    message(STATUS "Profiling build: -g -fno-omit-frame-pointer")
+endif()
+if(FINMATH_INSTRUMENTATION)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+    message(STATUS "Instrumentation build: -pg (gprof)")
+endif()
+
 # Enable SIMD optimizations based on architecture
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
     # x86/x86_64: Enable SSE2 (baseline) and detect AVX
@@ -92,6 +107,10 @@ add_cpp_test_labeled(BinomialOptionPricingTest test/OptionPricing/binomial_optio
 add_cpp_test_labeled(RSITest test/TimeSeries/rsi_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(RollingStdDevTest test/TimeSeries/rolling_std_dev_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(BellmanArbitrageTest test/GraphAlgos/bellman_arbitrage_test.cpp "GraphAlgos;Unit")
+
+# Profiling harness: rolling volatility (scalar path only; SIMD path via Python)
+add_executable(RollingVolatilityProfile_harness profiling/harness_rolling_volatility.cpp)
+target_link_libraries(RollingVolatilityProfile_harness PRIVATE finmath_library)
 
 # Add pybind11 for Python bindings
 include(FetchContent)

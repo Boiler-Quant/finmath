@@ -8,3 +8,9 @@ __pycache__
 .pytest_cache
 demos/
 docs/
+
+# Profiling
+perf.data
+perf.data.old
+gmon.out
+profiling/gprof_*.txt
