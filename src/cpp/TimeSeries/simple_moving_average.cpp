@@ -5,6 +5,8 @@
 #include <numeric>
 #include <vector>
 
+namespace py = pybind11;
+
 std::vector<double> simple_moving_average(const std::vector<double> &data, size_t window_size)
 {
     std::vector<double> averages;

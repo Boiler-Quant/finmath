@@ -6,6 +6,8 @@
 #include <cmath>
 #include <vector>
 
+namespace py = pybind11;
+
 // Function to compute the logarithmic returns
 std::vector<double> compute_log_returns(const std::vector<double> &prices)
 {

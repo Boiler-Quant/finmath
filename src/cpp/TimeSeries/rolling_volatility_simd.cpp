@@ -47,13 +47,19 @@ std::vector<double> rolling_volatility_simd(py::array_t<double> prices_arr, size
 
     const double annualization_factor = std::sqrt(252.0);
 
+    // Use cache-blocked version for large windows or large datasets
+    // Threshold: use cache-blocking if window > 1000 or total data > 100K
+    bool use_cache_blocking = (window_size > 1000) || (num_prices > 100000);
+    
     for (size_t i = 0; i < num_windows; ++i) {
         // Get pointer to current window in log returns
         const double* window_data = &log_returns[i];
         
         // SIMD-accelerated standard deviation calculation
-        // Use the helper function which already includes optimized variance computation
-        double std_dev = finmath::simd::vector_stddev(window_data, window_size);
+        // Use cache-blocked version for large windows to improve cache utilization
+        double std_dev = use_cache_blocking 
+            ? finmath::simd::vector_stddev_blocked(window_data, window_size)
+            : finmath::simd::vector_stddev(window_data, window_size);
         
         // Annualize
         double volatility = std_dev * annualization_factor;

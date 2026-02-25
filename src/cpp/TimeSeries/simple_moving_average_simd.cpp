@@ -35,13 +35,20 @@ std::vector<double> simple_moving_average_simd(py::array_t<double> data_arr, siz
     size_t num_windows = num_data - window_size + 1;
     averages.reserve(num_windows);
 
+    // Use cache-blocked version for large windows or large datasets
+    // Threshold: use cache-blocking if window > 1000 or total data > 100K
+    bool use_cache_blocking = (window_size > 1000) || (num_data > 100000);
+    
     // Use SIMD-accelerated sum for each window
     for (size_t i = 0; i < num_windows; ++i) {
         // Get pointer to current window
         const double* window_data = &data_ptr[i];
         
         // SIMD-accelerated sum calculation
-        double sum = finmath::simd::vector_sum(window_data, window_size);
+        // Use cache-blocked version for large windows to improve cache utilization
+        double sum = use_cache_blocking
+            ? finmath::simd::vector_sum_blocked(window_data, window_size)
+            : finmath::simd::vector_sum(window_data, window_size);
         
         // Compute average
         double avg = sum / static_cast<double>(window_size);

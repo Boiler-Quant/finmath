@@ -5,6 +5,8 @@
 #include <numeric>
 #include <cmath>
 
+namespace py = pybind11;
+
 double compute_avg_gain(const std::vector<double> &price_changes, size_t start, size_t window_size)
 {
     double total_gain = 0.0;
