@@ -12,7 +12,8 @@ int main()
         "./compound_interest_test",
         "./black_scholes_test",
         "./binomial_option_pricing_test",
-        "./rsi_test"};
+        "./rsi_test",
+        "./bellman_arbitrage_test"};
 
     int failedTests = 0;
 

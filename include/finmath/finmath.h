@@ -8,6 +8,7 @@
 #include "finmath/TimeSeries/simple_moving_average.h"
 #include "finmath/TimeSeries/rsi.h"
 #include "finmath/TimeSeries/ema.h"
+#include "finmath/TimeSeries/rolling_std_dev.h"
 // Include other headers as needed
 
 #endif // FINMATH_H
