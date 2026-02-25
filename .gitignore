@@ -6,3 +6,5 @@ venv
 src/*.so
 __pycache__
 .pytest_cache
+demos/
+docs/
