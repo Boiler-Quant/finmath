@@ -4,3 +4,5 @@ venv
 .idea
 *.so
 src/*.so
+__pycache__
+.pytest_cache
