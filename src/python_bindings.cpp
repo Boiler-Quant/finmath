@@ -9,6 +9,7 @@
 #include "finmath/TimeSeries/simple_moving_average.h"
 #include "finmath/TimeSeries/rsi.h"
 #include "finmath/TimeSeries/ema.h"
+#include "finmath/GraphAlgos/bellman_arbitrage.h"
 
 namespace py = pybind11;
 
@@ -40,6 +41,28 @@ PYBIND11_MODULE(finmath, m)
       m.def("rolling_volatility", &rolling_volatility_np, "Rolling Volatility (NumPy/Pandas input)",
             py::arg("prices"), py::arg("window_size"));
 
+      // Binomial and Black-Scholes greeks (from main)
+      m.def("binom_delta", &Binom::compute_delta, "Calculate the Delta of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_S") = -1);
+      m.def("binom_gamma", &Binom::compute_gamma, "Calculate the Gamma of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_S") = -1);
+      m.def("binom_vega", &Binom::compute_vega, "Calculate the Vega of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_sig") = -1);
+      m.def("binom_theta", &Binom::compute_theta, "Calculate the Theta of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_T") = -1);
+      m.def("binom_rho", &Binom::compute_rho, "Calculate the Rho of a Binomial Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("T"), py::arg("r"), py::arg("sigma"), py::arg("N"), py::arg("delta_r") = -1);
+      m.def("black_scholes_delta", &BlackScholes::compute_delta, "Calculate the Delta of a Black Scholes Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+      m.def("black_scholes_gamma", &BlackScholes::compute_gamma, "Calculate the Gamma of a Black Scholes Option",
+            py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+      m.def("black_scholes_vega", &BlackScholes::compute_vega, "Calculate the Vega of a Black Scholes Option",
+            py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+      m.def("black_scholes_theta", &BlackScholes::compute_theta, "Calculate the Theta of a Black Scholes Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("T"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+      m.def("black_scholes_rho", &BlackScholes::compute_rho, "Calculate the Rho of a Black Scholes Option",
+            py::arg("type"), py::arg("S0"), py::arg("K"), py::arg("t"), py::arg("r"), py::arg("q"), py::arg("sigma"));
+
       // Bind simple moving average
       m.def("simple_moving_average", &simple_moving_average, "Simple Moving Average (List input)",
             py::arg("prices"), py::arg("window_size"));
@@ -63,4 +86,9 @@ PYBIND11_MODULE(finmath, m)
             py::arg("prices"), py::arg("smoothing_factor"));
       m.def("ema_smoothing", &compute_ema_with_smoothing_np, "Exponential Moving Average - Smoothing Factor (NumPy/Pandas input)",
             py::arg("prices"), py::arg("smoothing_factor"));
+
+    m.def("detect_arbitrage", &detectArbitrageBellman<std::string>,
+            "Detect arbitrage opportunities in a currency graph",
+            py::arg("graph"));
+    
 }
