@@ -172,6 +172,39 @@ double vector_min(const double* a, size_t size);
 double vector_conditional_sum(const double* a, size_t size, bool positive);
 
 /**
+ * @brief Cache-blocked vector sum (optimized for large datasets)
+ * Processes data in cache-friendly chunks to improve memory bandwidth utilization
+ * 
+ * @param a Input vector
+ * @param size Number of elements
+ * @param chunk_size Size of cache blocks (default: 4096 elements, ~32KB)
+ * @return Sum of all elements
+ */
+double vector_sum_blocked(const double* a, size_t size, size_t chunk_size = 4096);
+
+/**
+ * @brief Cache-blocked vector variance (optimized for large datasets)
+ * Processes data in cache-friendly chunks
+ * 
+ * @param a Input vector
+ * @param size Number of elements
+ * @param chunk_size Size of cache blocks (default: 4096 elements, ~32KB)
+ * @return Variance of all elements
+ */
+double vector_variance_blocked(const double* a, size_t size, size_t chunk_size = 4096);
+
+/**
+ * @brief Cache-blocked vector standard deviation (optimized for large datasets)
+ * Processes data in cache-friendly chunks
+ * 
+ * @param a Input vector
+ * @param size Number of elements
+ * @param chunk_size Size of cache blocks (default: 4096 elements, ~32KB)
+ * @return Standard deviation of all elements
+ */
+double vector_stddev_blocked(const double* a, size_t size, size_t chunk_size = 4096);
+
+/**
  * @brief Get the SIMD implementation being used
  * @return String description of SIMD backend ("NEON", "AVX", "SSE", "Scalar")
  */

@@ -586,6 +586,124 @@ double vector_conditional_sum(const double* a, size_t size, bool positive) {
     return sum;
 }
 
+// ============================================================================
+// Cache-Blocked Vector Sum: Processes data in cache-friendly chunks
+// ============================================================================
+
+double vector_sum_blocked(const double* a, size_t size, size_t chunk_size) {
+    if (!a || size == 0) return 0.0;
+    if (chunk_size == 0) chunk_size = 4096;  // Default: ~32KB (4096 doubles)
+    
+    // For small arrays, use regular vector_sum
+    if (size < chunk_size * 2) {
+        return vector_sum(a, size);
+    }
+    
+    double total_sum = 0.0;
+    size_t processed = 0;
+    
+    // Process in chunks
+    while (processed < size) {
+        size_t current_chunk = std::min(chunk_size, size - processed);
+        double chunk_sum = vector_sum(a + processed, current_chunk);
+        total_sum += chunk_sum;
+        processed += current_chunk;
+    }
+    
+    return total_sum;
+}
+
+// ============================================================================
+// Cache-Blocked Vector Variance: Processes data in cache-friendly chunks
+// ============================================================================
+
+double vector_variance_blocked(const double* a, size_t size, size_t chunk_size) {
+    if (size == 0) return 0.0;
+    if (chunk_size == 0) chunk_size = 4096;
+    
+    // For small arrays, use regular vector_variance
+    if (size < chunk_size * 2) {
+        return vector_variance(a, size);
+    }
+    
+    // First pass: compute mean using cache-blocked sum
+    double mean = vector_sum_blocked(a, size, chunk_size) / static_cast<double>(size);
+    
+    // Second pass: compute variance in chunks
+    double total_sum_sq = 0.0;
+    size_t processed = 0;
+    
+    while (processed < size) {
+        size_t current_chunk = std::min(chunk_size, size - processed);
+        const double* chunk_data = a + processed;
+        
+        // Compute sum of squares for this chunk using SIMD
+        double chunk_sum_sq = 0.0;
+        size_t i = 0;
+        
+#ifdef FINMATH_USE_AVX
+        __m256d vmean = _mm256_set1_pd(mean);
+        __m256d vsum_sq = _mm256_setzero_pd();
+        
+        for (; i + 4 <= current_chunk; i += 4) {
+            __m256d va = _mm256_loadu_pd(&chunk_data[i]);
+            __m256d vdiff = _mm256_sub_pd(va, vmean);
+            __m256d vsq = _mm256_mul_pd(vdiff, vdiff);
+            vsum_sq = _mm256_add_pd(vsum_sq, vsq);
+        }
+        
+        double temp[4];
+        _mm256_storeu_pd(temp, vsum_sq);
+        chunk_sum_sq = temp[0] + temp[1] + temp[2] + temp[3];
+#elif defined(FINMATH_USE_SSE)
+        __m128d vmean = _mm_set1_pd(mean);
+        __m128d vsum_sq = _mm_setzero_pd();
+        
+        for (; i + 2 <= current_chunk; i += 2) {
+            __m128d va = _mm_loadu_pd(&chunk_data[i]);
+            __m128d vdiff = _mm_sub_pd(va, vmean);
+            __m128d vsq = _mm_mul_pd(vdiff, vdiff);
+            vsum_sq = _mm_add_pd(vsum_sq, vsq);
+        }
+        
+        double temp[2];
+        _mm_storeu_pd(temp, vsum_sq);
+        chunk_sum_sq = temp[0] + temp[1];
+#elif defined(FINMATH_USE_NEON)
+        float64x2_t vmean = vdupq_n_f64(mean);
+        float64x2_t vsum_sq = vdupq_n_f64(0.0);
+        
+        for (; i + 2 <= current_chunk; i += 2) {
+            float64x2_t va = vld1q_f64(&chunk_data[i]);
+            float64x2_t vdiff = vsubq_f64(va, vmean);
+            float64x2_t vsq = vmulq_f64(vdiff, vdiff);
+            vsum_sq = vaddq_f64(vsum_sq, vsq);
+        }
+        
+        chunk_sum_sq = vgetq_lane_f64(vsum_sq, 0) + vgetq_lane_f64(vsum_sq, 1);
+#endif
+        
+        // Scalar fallback for remaining elements in chunk
+        for (; i < current_chunk; ++i) {
+            double diff = chunk_data[i] - mean;
+            chunk_sum_sq += diff * diff;
+        }
+        
+        total_sum_sq += chunk_sum_sq;
+        processed += current_chunk;
+    }
+    
+    return total_sum_sq / static_cast<double>(size);
+}
+
+// ============================================================================
+// Cache-Blocked Vector Standard Deviation
+// ============================================================================
+
+double vector_stddev_blocked(const double* a, size_t size, size_t chunk_size) {
+    return std::sqrt(vector_variance_blocked(a, size, chunk_size));
+}
+
 } // namespace simd
 } // namespace finmath
 
