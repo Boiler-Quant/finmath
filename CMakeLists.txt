@@ -58,44 +58,39 @@ target_link_libraries(finmath_library PUBLIC pybind11::headers)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 target_link_libraries(finmath_library PUBLIC Python::Python)
 
-# Test executables
-# add_executable(black_scholes_test test/OptionPricing/black_scholes_test.cpp)
-# target_link_libraries(black_scholes_test finmath_library)
-# 
-# add_executable(binomial_option_pricing_test test/OptionPricing/binomial_option_pricing_test.cpp)
-# target_link_libraries(binomial_option_pricing_test finmath_library)
-# 
-# add_executable(compound_interest_test test/InterestAndAnnuities/compound_interest_test.cpp)
-# target_link_libraries(compound_interest_test finmath_library)
-# 
-# add_executable(rsi_test test/TimeSeries/rsi_test.cpp) # This was the problematic one
-# target_link_libraries(rsi_test finmath_library)
-# 
-# # Test runner (can be removed if using ctest directly)
-# add_executable(run_all_tests test/test_runner.cpp)
-
 # Enable testing
 enable_testing()
 
-# Helper macro to add a test executable and link it
+# Test include dir for test_common.h (optional use by tests)
+set(FINMATH_TEST_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test/include)
+
+# Helper macro: add a C++ test executable, link to library, register with CTest, set labels
 macro(add_cpp_test test_name source_file)
     message(STATUS "Adding C++ test: ${test_name} from ${source_file}")
     add_executable(${test_name}_executable ${source_file})
+    target_include_directories(${test_name}_executable PRIVATE ${FINMATH_TEST_INCLUDE_DIR})
     target_link_libraries(${test_name}_executable PRIVATE finmath_library)
     add_test(NAME ${test_name} COMMAND ${test_name}_executable)
 endmacro()
 
-# Add C++ tests using the macro
-add_cpp_test(RSITest test/TimeSeries/RSI/C++/rsi_test.cpp)
-add_cpp_test(RollingVolatilityTest test/TimeSeries/RollingVolatility/C++/rolling_volatility_test.cpp)
-add_cpp_test(SimpleMovingAverageTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_test.cpp)
-add_cpp_test(EMATest test/TimeSeries/EMA/C++/ema_test.cpp)
-add_cpp_test(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp)
+# Helper: add test and assign CTest labels (e.g. for ctest -L SIMD)
+macro(add_cpp_test_labeled test_name source_file labels)
+    add_cpp_test(${test_name} ${source_file})
+    set_tests_properties(${test_name} PROPERTIES LABELS "${labels}")
+endmacro()
 
-# Add SIMD-optimized function tests
-add_cpp_test(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp)
-add_cpp_test(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp)
-add_cpp_test(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp)
+# --- SIMD and helper tests (label: SIMD) ---
+add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "SIMD;Helper;Unit")
+add_cpp_test_labeled(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp "SIMD;TimeSeries;Unit")
+add_cpp_test_labeled(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp "SIMD;TimeSeries;Unit")
+add_cpp_test_labeled(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp "SIMD;TimeSeries;Unit")
+
+# --- Core unit tests ---
+add_cpp_test_labeled(CompoundInterestTest test/InterestAndAnnuities/compound_interest_test.cpp "InterestAndAnnuities;Unit")
+add_cpp_test_labeled(BlackScholesTest test/OptionPricing/black_scholes_test.cpp "OptionPricing;Unit")
+add_cpp_test_labeled(BinomialOptionPricingTest test/OptionPricing/binomial_option_pricing_test.cpp "OptionPricing;Unit")
+add_cpp_test_labeled(RSITest test/TimeSeries/rsi_test.cpp "TimeSeries;Unit")
+add_cpp_test_labeled(RollingStdDevTest test/TimeSeries/rolling_std_dev_test.cpp "TimeSeries;Unit")
 
 # Add pybind11 for Python bindings
 include(FetchContent)
