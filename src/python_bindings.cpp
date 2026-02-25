@@ -14,6 +14,7 @@
 #include "finmath/TimeSeries/ema.h"
 #include "finmath/TimeSeries/ema_simd.h"
 #include "finmath/Helper/simd_helper.h"
+#include "finmath/GraphAlgos/bellman_arbitrage.h"
 
 namespace py = pybind11;
 
@@ -75,7 +76,7 @@ PYBIND11_MODULE(finmath, m)
       // Bind EMA (smoothing factor)
       m.def("ema_smoothing", &compute_ema_with_smoothing, "Exponential Moving Average - Smoothing Factor (List input)",
             py::arg("prices"), py::arg("smoothing_factor"));
-      
+
       // Bind SIMD-optimized EMA
       m.def("ema_window_simd", &compute_ema_simd, "Exponential Moving Average - Window (SIMD-optimized, zero-copy NumPy)",
             py::arg("prices"), py::arg("window_size"));
@@ -84,4 +85,9 @@ PYBIND11_MODULE(finmath, m)
 
       // Utility function to get SIMD backend
       m.def("get_simd_backend", &finmath::simd::get_simd_backend, "Get the active SIMD backend (AVX, SSE, NEON, or Scalar)");
+
+      // Bellman-based arbitrage detection (from main)
+      m.def("detect_arbitrage", &detectArbitrageBellman<std::string>,
+            "Detect arbitrage opportunities in a currency graph",
+            py::arg("graph"));
 }
