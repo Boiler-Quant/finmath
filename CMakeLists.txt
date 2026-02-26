@@ -46,6 +46,9 @@ target_link_libraries(rolling_std_dev_test finmath_library)
 add_executable(bellman_arbitrage_test test/GraphAlgos/bellman_arbitrage_test.cpp)
 target_link_libraries(bellman_arbitrage_test finmath_library)
 
+add_executable(markov_chain_test test/MarkovChains/C++/markov_chain_test.cpp)
+target_link_libraries(markov_chain_test finmath_library)
+
 # Test runner
 add_executable(run_all_tests test/test_runner.cpp)
 
@@ -59,6 +62,7 @@ add_test(NAME CompoundInterestTest COMMAND compound_interest_test)
 add_test(NAME RSITest COMMAND rsi_test)
 add_test(NAME RollingStdDevTest COMMAND rolling_std_dev_test)
 add_test(NAME BellmanArbitrageTest COMMAND bellman_arbitrage_test)
+add_test(NAME MarkovChainTest COMMAND markov_chain_test)
 
 # Add a custom target to run all tests
 add_custom_target(build_and_test
@@ -67,6 +71,7 @@ add_custom_target(build_and_test
     COMMAND ${CMAKE_COMMAND} --build . --target compound_interest_test
     COMMAND ${CMAKE_COMMAND} --build . --target rsi_test
     COMMAND ${CMAKE_COMMAND} --build . --target bellman_arbitrage_test
+    COMMAND ${CMAKE_COMMAND} --build . --target markov_chain_test
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
