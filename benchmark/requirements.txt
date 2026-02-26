@@ -1,4 +1,0 @@
-gs_quant
-psutil
-py-cpuinfo
-pandas
