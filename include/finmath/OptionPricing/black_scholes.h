@@ -13,4 +13,4 @@ namespace BlackScholes {
     double compute_rho(OptionType type, double S0, double K, double t, double r, double q, double sigma);
 }
 
-#endif //BLACK_SCHOLES_H
+#endif  // BLACK_SCHOLES_H
