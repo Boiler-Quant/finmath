@@ -19,15 +19,20 @@ jobs:
 
       - name: Set image tag
         id: meta
-        run: echo "tag=ghcr.io/${{ github.repository }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "tag=ghcr.io/${{ github.repository }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Check Docker
+        run: docker --version
 
       - name: Log into GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | \
-             docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+          docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build image
         run: |
-          docker build image -t ${{ steps.meta.outputs.tag }} .
+          docker build -t ${{ steps.meta.outputs.tag }} .
 
       - name: Push image
         run: |
@@ -43,8 +48,9 @@ jobs:
 
     steps:
       - name: Log into GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | \
-             docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+          docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Pull image
         run: |
