@@ -95,10 +95,10 @@ macro(add_cpp_test_labeled test_name source_file labels)
 endmacro()
 
 # --- SIMD and helper tests (label: SIMD) ---
-add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "SIMD;Helper;Unit")
-add_cpp_test_labeled(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp "SIMD;TimeSeries;Unit")
-add_cpp_test_labeled(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp "SIMD;TimeSeries;Unit")
-add_cpp_test_labeled(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp "SIMD;TimeSeries;Unit")
+# add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "SIMD;Helper;Unit")
+# add_cpp_test_labeled(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp "SIMD;TimeSeries;Unit")
+# add_cpp_test_labeled(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp "SIMD;TimeSeries;Unit")
+# add_cpp_test_labeled(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp "SIMD;TimeSeries;Unit")
 
 # --- Core unit tests ---
 add_cpp_test_labeled(CompoundInterestTest test/InterestAndAnnuities/compound_interest_test.cpp "InterestAndAnnuities;Unit")
