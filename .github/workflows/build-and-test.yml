@@ -52,10 +52,10 @@ jobs:
 
       - name: Pull image
         run: |
-          docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
+          docker pull ${{ needs.build.outputs.image_tag }}
 
       - name: Run tests
         run: |
-          docker run --rm ghcr.io/${{ github.repository }}:${{ github.sha }} \
+          docker run --rm ${{ needs.build.outputs.image_tag }} \
           ctest --output-on-failure
 
