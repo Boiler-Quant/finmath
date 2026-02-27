@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Single entry point to run instrumentation, statistical profiling, or machine-code analysis
+# on any finmath target.
+#
+# Usage:
+#   ./profile perf-stat <target> [perf options...]
+#   ./profile perf-record <target> [perf options...]
+#   ./profile gprof <target>
+#   ./profile llvm-mca <target> [--mcpu=CPU] [--iterations=N]
+#   ./profile list
+#
+# Targets: black_scholes, binomial_option_pricing, compound_interest, rolling_volatility,
+#          rolling_volatility_simd, simple_moving_average, simple_moving_average_simd,
+#          rsi, rsi_simd, ema_simd, simd_helper, bellman_arbitrage
+# Or path to executable (.cpp for llvm-mca).
+
+set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+list_targets() {
+  if [[ ! -f "$SCRIPT_DIR/profile_targets.json" ]]; then
+    echo "profile_targets.json not found"
+    return 1
+  fi
+  python3 -c "
+import json
+with open('$SCRIPT_DIR/profile_targets.json') as f:
+    d = json.load(f)
+for k in d.get('targets', {}):
+    print(k)
+"
+}
+
+case "${1:-}" in
+  perf-stat)
+    exec "$SCRIPT_DIR/run_perf.sh" stat "${@:2}"
+    ;;
+  perf-record)
+    exec "$SCRIPT_DIR/run_perf.sh" record "${@:2}"
+    ;;
+  gprof)
+    exec "$SCRIPT_DIR/run_gprof.sh" "${@:2}"
+    ;;
+  llvm-mca)
+    exec "$SCRIPT_DIR/run_llvm_mca.sh" "${@:2}"
+    ;;
+  list)
+    echo "Available targets:"
+    list_targets
+    ;;
+  "")
+    echo "Usage: $0 <perf-stat|perf-record|gprof|llvm-mca|list> [target] [options...]"
+    echo "  perf-stat <target>   - perf stat (counts)"
+    echo "  perf-record <target> - perf record + report (sampling)"
+    echo "  gprof <target>       - build with -pg, run, gprof report"
+    echo "  llvm-mca <target>    - assembly + llvm-mca"
+    echo "  list                 - list target names"
+    exit 1
+    ;;
+  *)
+    echo "Unknown command: $1"
+    exit 1
+    ;;
+esac

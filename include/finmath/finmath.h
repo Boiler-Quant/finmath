@@ -7,6 +7,7 @@
 #include "finmath/TimeSeries/rolling_volatility.h"
 #include "finmath/TimeSeries/simple_moving_average.h"
 #include "finmath/TimeSeries/rsi.h"
-// Include other headers as needed
+#include "finmath/TimeSeries/ema.h"
+#include "finmath/TimeSeries/rolling_std_dev.h"
 
-#endif // FINMATH_H
+#endif  // FINMATH_H
