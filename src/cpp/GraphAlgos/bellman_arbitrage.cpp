@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <string>
 
 // https://cp-algorithms.com/graph/finding-negative-cycle-in-graph.html
 
@@ -81,4 +82,4 @@ std::vector<Node> detectArbitrageBellman(const AdjList<Node>& graph) {
     return cycle;
 }
 
-template std::vector<std::string> detectArbitrageBellman<std::string>(const AdjList<std::string>& graph);
+// template std::vector<std::string> detectArbitrageBellman<std::string>(const AdjList<std::string>& graph);
