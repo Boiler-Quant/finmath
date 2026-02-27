@@ -1,0 +1,59 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+ 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: meta
+        run: echo "tag=ghcr.io/${{ github.repository }}:${ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Log into GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | \
+             docker login ghcr.io -u ${{ gitub.actor }} --password-stdin
+
+      - name: Build image
+        run: |
+          docker build image -t ${{ steps.meta.outputs.tag }} .
+
+      - name: Push image
+        run: |
+          docker push ${{ steps.meta.outputs.tag }}
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Log into GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | \
+             docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull image
+        run: |
+          docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Run tests
+        run: |
+          docker run --rm ghcr.io/${{ github.repository }}:${{ github.sha }} \
+          ctest --output-on-failure
+
