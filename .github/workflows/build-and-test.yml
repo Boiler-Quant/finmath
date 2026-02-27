@@ -23,7 +23,7 @@ jobs:
 
       - name: Log into GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | \
-             docker login ghcr.io -u ${{ gitub.actor }} --password-stdin
+             docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build image
         run: |
