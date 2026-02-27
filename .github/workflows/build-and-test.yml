@@ -19,7 +19,7 @@ jobs:
 
       - name: Set image tag
         id: meta
-        run: echo "tag=ghcr.io/${{ github.repository }}:${ github.sha }}" >> $GITHUB_OUTPUT
+        run: echo "tag=ghcr.io/${{ github.repository }}:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Log into GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | \
