@@ -20,10 +20,8 @@ jobs:
       - name: Set image tag
         id: meta
         run: |
-          echo "tag=ghcr.io/${{ github.repository }}:${{ github.sha }}" >> $GITHUB_OUTPUT
-
-      - name: Check Docker
-        run: docker --version
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "tag=ghcr.io/${REPO}:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Log into GHCR
         run: |
