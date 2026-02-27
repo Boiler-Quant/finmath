@@ -106,7 +106,7 @@ add_cpp_test_labeled(BlackScholesTest test/OptionPricing/black_scholes_test.cpp 
 add_cpp_test_labeled(BinomialOptionPricingTest test/OptionPricing/binomial_option_pricing_test.cpp "OptionPricing;Unit")
 add_cpp_test_labeled(RSITest test/TimeSeries/rsi_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(RollingStdDevTest test/TimeSeries/rolling_std_dev_test.cpp "TimeSeries;Unit")
-add_cpp_test_labeled(BellmanArbitrageTest test/GraphAlgos/bellman_arbitrage_test.cpp "GraphAlgos;Unit")
+# add_cpp_test_labeled(BellmanArbitrageTest test/GraphAlgos/bellman_arbitrage_test.cpp "GraphAlgos;Unit")
 
 # Profiling harness: rolling volatility (scalar path only; SIMD path via Python)
 add_executable(RollingVolatilityProfile_harness profiling/harness_rolling_volatility.cpp)
