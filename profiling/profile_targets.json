@@ -1,0 +1,71 @@
+{
+  "comment": "Targets for perf/stat, gprof, and llvm-mca. executable = C++ test binary name (no path). source_for_mca = C++ source file for machine-code analysis. symbol = main function symbol for MCA (optional).",
+  "targets": {
+    "black_scholes": {
+      "executable": "BlackScholesTest_executable",
+      "source_for_mca": "src/cpp/OptionPricing/black_scholes.cpp",
+      "symbol": "black_scholes"
+    },
+    "binomial_option_pricing": {
+      "executable": "BinomialOptionPricingTest_executable",
+      "source_for_mca": "src/cpp/OptionPricing/binomial_tree.cpp",
+      "symbol": "binomial_option_pricing"
+    },
+    "compound_interest": {
+      "executable": "CompoundInterestTest_executable",
+      "source_for_mca": "src/cpp/InterestAndAnnuities/compound_interest.cpp",
+      "symbol": "compound_interest"
+    },
+    "rolling_volatility": {
+      "executable": "RollingVolatilityProfile_harness",
+      "source_for_mca": "src/cpp/TimeSeries/rolling_volatility.cpp",
+      "symbol": "rolling_volatility"
+    },
+    "rolling_volatility_simd": {
+      "executable": "",
+      "run_via_python": "profiling/run_rolling_volatility_bench.py --simd",
+      "source_for_mca": "src/cpp/TimeSeries/rolling_volatility_simd.cpp",
+      "symbol": "rolling_volatility_simd"
+    },
+    "simple_moving_average": {
+      "executable": "SimpleMovingAverageSIMDTest_executable",
+      "source_for_mca": "src/cpp/TimeSeries/simple_moving_average.cpp",
+      "symbol": "simple_moving_average"
+    },
+    "simple_moving_average_simd": {
+      "executable": "SimpleMovingAverageSIMDTest_executable",
+      "source_for_mca": "src/cpp/TimeSeries/simple_moving_average_simd.cpp",
+      "symbol": "simple_moving_average_simd"
+    },
+    "rsi": {
+      "executable": "RSITest_executable",
+      "source_for_mca": "src/cpp/TimeSeries/rsi.cpp",
+      "symbol": "compute_smoothed_rsi"
+    },
+    "rsi_simd": {
+      "executable": "RSISIMDTest_executable",
+      "source_for_mca": "src/cpp/TimeSeries/rsi_simd.cpp",
+      "symbol": "compute_smoothed_rsi_simd"
+    },
+    "ema_simd": {
+      "executable": "EMASIMDTest_executable",
+      "source_for_mca": "src/cpp/TimeSeries/ema_simd.cpp",
+      "symbol": "compute_ema_simd"
+    },
+    "simd_helper": {
+      "executable": "SIMDHelperTest_executable",
+      "source_for_mca": "src/cpp/Helper/simd_helper.cpp",
+      "symbol": ""
+    },
+    "bellman_arbitrage": {
+      "executable": "BellmanArbitrageTest_executable",
+      "source_for_mca": "src/cpp/GraphAlgos/bellman_arbitrage.cpp",
+      "symbol": "find_arbitrage"
+    }
+  },
+  "python_drivers": {
+    "comment": "Python scripts that stress finmath via bindings; use for full-stack perf (Python + C++).",
+    "rolling_sma_simd": "benchmark/benchmark.py",
+    "black_scholes": "benchmark/benchmark.py"
+  }
+}

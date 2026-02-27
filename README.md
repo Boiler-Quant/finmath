@@ -1,6 +1,12 @@
 # finmath
 
-**finmath** is a high-performance financial mathematics library written in C++ with Python bindings using `pybind11`. The library includes various functions for calculating compound interest, option pricing (including Black-Scholes and Binomial Tree models), and time series analysis. The goal is to provide a fast and reliable tool for financial calculations that can be used in Python.
+**finmath** is a high-performance financial mathematics library written in C++ with Python bindings using `pybind11`. The library includes various functions for calculating compound interest, option pricing (including Black-Scholes and Binomial Tree models), and time series analysis. 
+
+**Key Features:**
+- **Cross-platform SIMD optimizations** (ARM NEON, x86 AVX/SSE) for 2-4x speedups
+- **Zero-copy NumPy integration** for efficient memory usage
+- **34-308x faster** than pure Python/NumPy implementations
+- Production-ready with comprehensive tests
 
 ## Installation
 
@@ -16,7 +22,7 @@
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/prajwalshah19/finmath.git
+   git clone https://github.com/Boiler-Quant/finmath.git
    cd finmath
    ```
 
@@ -102,26 +108,27 @@ int main() {
 }
 ```
 
-## Benchmarking
+## Performance
 
-You can compare the performance of `finmath` functions with other implementations (e.g., `gs_quant`) to see the speedup provided by the C++ implementations:
+The library uses SIMD optimizations and zero-copy NumPy integration for maximum performance. See `demos/` for benchmark comparisons.
 
+**Example with NumPy (zero-copy):**
 ```python
-import timeit
-import gs_quant.timeseries as ts
-import functions
 import finmath
+import numpy as np
 
-# Example data for 1000 days
-prices = ts.generate_series(1000)
+# Zero-copy NumPy arrays for best performance
+prices = np.array([100, 101, 102, 103, 104, 105])
+sma = finmath.simple_moving_average_simd(prices, window_size=3)
+rsi = finmath.smoothed_rsi_simd(prices, window_size=14)
+```
 
-# Timing the finmath C++ implementation of rolling volatility
-def test_cpp_implementation():
-    return finmath.rolling_volatility(prices.tolist(), 22)
+## Testing
 
-cpp_time = timeit.timeit(test_cpp_implementation, number=100)
-print(f"C++ implementation time: {cpp_time:.6f} seconds")
-
+Run the test suite:
+```bash
+cd build
+ctest
 ```
 
 ## Contributing

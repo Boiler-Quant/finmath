@@ -1,14 +1,18 @@
 #include <cmath>
 #include <algorithm>
+#include <limits>
 #include <vector>
 #include "finmath/OptionPricing/binomial_tree.h"
 #include "finmath/Helper/helper.h"
 
 double binomial_option_pricing(OptionType type, double S0, double K, double T, double r, double sigma, long N) {
-    double dt = T / N;
-    double u = std::exp(sigma * std::sqrt(dt));
-    double d = std::exp(-sigma * std::sqrt(dt));
-    double p = (std::exp(r * dt) - d) / (u - d);
+    if (S0 <= 0.0 || K <= 0.0 || T <= 0.0 || sigma < 0.0 || N <= 0) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    const double dt = T / static_cast<double>(N);
+    const double u = std::exp(sigma * std::sqrt(dt));
+    const double d = std::exp(-sigma * std::sqrt(dt));
+    const double p = (std::exp(r * dt) - d) / (u - d);
     double value = 0.0;
 
     // Start with the initial binomial coefficient C(N, 0) = 1

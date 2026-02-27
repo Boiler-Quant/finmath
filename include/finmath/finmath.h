@@ -10,6 +10,5 @@
 #include "finmath/TimeSeries/ema.h"
 #include "finmath/TimeSeries/rolling_std_dev.h"
 #include "finmath/MarkovChains/markov_chain.h"
-// Include other headers as needed
 
-#endif // FINMATH_H
+#endif  // FINMATH_H
