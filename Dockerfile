@@ -8,9 +8,8 @@ RUN apt-get update && apt-get install -y \
     git \
     python3 \
     python3-pip \
-    python3-dev
-
-RUN pip3 install pybind11
+    python3-dev \
+    pybind11-dev
 
 WORKDIR /app
 COPY . .
