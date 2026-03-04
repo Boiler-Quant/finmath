@@ -3,6 +3,10 @@
 #include <pybind11/numpy.h> // Add numpy include
 
 #include "finmath/InterestAndAnnuities/compound_interest.h"
+#include "finmath/InterestAndAnnuities/discount_factor.h"
+#include "finmath/InterestAndAnnuities/present_future_value.h"
+#include "finmath/InterestAndAnnuities/annuity.h"
+#include "finmath/InterestAndAnnuities/cash_flow.h"
 #include "finmath/OptionPricing/black_scholes.h"
 #include "finmath/OptionPricing/binomial_tree.h"
 #include "finmath/TimeSeries/rolling_volatility.h"
@@ -15,6 +19,7 @@
 #include "finmath/TimeSeries/ema_simd.h"
 #include "finmath/Helper/simd_helper.h"
 #include "finmath/GraphAlgos/bellman_arbitrage.h"
+#include "finmath/FixedIncome/bond_pricing.h"
 
 namespace py = pybind11;
 
@@ -90,4 +95,85 @@ PYBIND11_MODULE(finmath, m)
       m.def("detect_arbitrage", &detectArbitrageBellman<std::string>,
             "Detect arbitrage opportunities in a currency graph",
             py::arg("graph"));
+
+      // discount factors
+      // Discount factors
+      m.def("discount_factor", &discount_factor,
+            "Discount factor (discrete compounding)",
+            py::arg("rate"), py::arg("time"));
+
+      m.def("discount_factor_continuous", &discount_factor_continuous,
+          "Discount factor (continuous compounding)",
+          py::arg("rate"), py::arg("time"));
+
+      m.def("future_value_factor", &future_value_factor,
+          "Future value factor",
+          py::arg("rate"), py::arg("time"));
+
+      // Present/Future value
+      m.def("present_value", &present_value,
+           "Present value (discrete compounding)",
+           py::arg("future_value"), py::arg("rate"), py::arg("time"));
+
+      m.def("future_value", &future_value,
+           "Future value (discrete compounding)",
+           py::arg("present_value"), py::arg("rate"), py::arg("time"));
+
+      m.def("present_value_continuous", &present_value_continuous,
+              "Present value (continuous compounding)",
+              py::arg("future_value"), py::arg("rate"), py::arg("time"));
+
+      m.def("future_value_continuous", &future_value_continous,
+              "Future value (continuous compounding)",
+              py::arg("present_value"), py::arg("rate"), py::arg("time"));
+
+      // Annuity functions
+      m.def("annuity_present_value", &annuity_present_value,
+            "Present value of ordinary annuity (payments at END of period)",
+            py::arg("payment"), py::arg("rate"), py::arg("periods"));
+
+      m.def("annuity_future_value", &annuity_future_value,
+            "Future value of ordinary annuity",
+            py::arg("payment"), py::arg("rate"), py::arg("periods"));
+
+      m.def("annuity_due_present_value", &annuity_due_present_value,
+            "Present value of annuity due (payments at BEGINNING of period)",
+            py::arg("payment"), py::arg("rate"), py::arg("periods"));
+
+      m.def("annuity_due_future_value", &annuity_due_future_value,
+            "Future value of annuity due",
+            py::arg("payment"), py::arg("rate"), py::arg("periods"));
+
+      // Cash flow functions
+      m.def("net_present_value", &net_present_value,
+            "Net present value of a series of cash flows",
+            py::arg("cash_flows"), py::arg("rate"), py::arg("initial_investment") = 0.0);
+
+      m.def("internal_rate_of_return", &internal_rate_of_return,
+            "Internal rate of return (Newton-Raphson)",
+            py::arg("cash_flows"),
+            py::arg("initial_guess")   = 0.1,
+            py::arg("max_iterations")  = 100,
+            py::arg("tolerance")       = 1e-6);
+
+      m.def("payback_period", &payback_period,
+            "Number of periods until cumulative cash flows recover the initial investment (-1 if never)",
+            py::arg("cash_flows"), py::arg("initial_investment"));
+
+      // Bond pricing functions
+      m.def("bond_price", &bond_price,
+            "Theoretical price of a coupon bond",
+            py::arg("face_value"), py::arg("coupon_rate"), py::arg("yield_to_maturity"),
+            py::arg("periods"), py::arg("time_to_maturity"));
+
+      m.def("bond_yield", &bond_yield,
+            "Yield to maturity given a bond's market price (Newton-Raphson)",
+            py::arg("face_value"), py::arg("coupon_rate"), py::arg("price"),
+            py::arg("periods"), py::arg("time_to_maturity"));
+
+      m.def("bond_duration", &bond_duration,
+            "Macaulay duration of a bond in years",
+            py::arg("face_value"), py::arg("coupon_rate"), py::arg("yield_to_maturity"),
+            py::arg("periods"), py::arg("time_to_maturity"));
+
 }

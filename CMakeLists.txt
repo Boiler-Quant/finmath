@@ -59,6 +59,11 @@ file(GLOB SOURCES "src/cpp/*/*.cpp")
 add_library(finmath_library SHARED ${SOURCES}
     "src/cpp/InterestAndAnnuities/simple_interest.cpp"
     "include/finmath/InterestAndAnnuities/simple_interest.h"
+    "include/finmath/InterestAndAnnuities/discount_factor.h"
+    "include/finmath/InterestAndAnnuities/present_future_value.h"
+    "include/finmath/InterestAndAnnuities/annuity.h"
+    "include/finmath/InterestAndAnnuities/cash_flow.h"
+    "include/finmath/FixedIncome/bond_pricing.h"
     "include/finmath/OptionPricing/options_pricing.h"
     "include/finmath/OptionPricing/options_pricing_types.h"
     "include/finmath/TimeSeries/rolling_volatility.h"
@@ -107,6 +112,12 @@ add_cpp_test_labeled(BinomialOptionPricingTest test/OptionPricing/binomial_optio
 add_cpp_test_labeled(RSITest test/TimeSeries/rsi_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(RollingStdDevTest test/TimeSeries/rolling_std_dev_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(BellmanArbitrageTest test/GraphAlgos/bellman_arbitrage_test.cpp "GraphAlgos;Unit")
+add_cpp_test_labeled(BondPricingTest test/FixedIncome/bond_pricing_test.cpp "FixedIncome;Unit")
+add_cpp_test_labeled(AnnuityTest test/InterestAndAnnuities/annuity_test.cpp "InterestAndAnnuities;Unit")
+add_cpp_test_labeled(CashFlowTest test/InterestAndAnnuities/cash_flow_test.cpp "InterestAndAnnuities;Unit")
+add_cpp_test_labeled(DiscountFactorTest test/InterestAndAnnuities/discount_factor_test.cpp "InterestAndAnnuities;Unit")
+add_cpp_test_labeled(PresentFutureValueTest test/InterestAndAnnuities/present_future_value_test.cpp "InterestAndAnnuities;Unit")
+
 
 # Profiling harness: rolling volatility (scalar path only; SIMD path via Python)
 add_executable(RollingVolatilityProfile_harness profiling/harness_rolling_volatility.cpp)
