@@ -2,6 +2,8 @@
 #define DISCOUNT_FACTOR_H
 
 #include <cmath>
+#include <stdexcept>
+
 
 /**
  * Discrete compounding discount factor

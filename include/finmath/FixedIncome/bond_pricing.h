@@ -2,6 +2,7 @@
 #define BOND_PRICING_H
 
 #include <cmath>
+#include <stdexcept>
 
 /**
  * Bond price (coupon bond)

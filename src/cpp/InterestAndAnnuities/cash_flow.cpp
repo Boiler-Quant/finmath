@@ -20,7 +20,7 @@
 double net_present_value(
     const std::vector<double>& cash_flows,
     double rate,
-    double initial_investment = 0.0
+    double initial_investment
     ) {
     double NPV{0.0};
     double exponent{-1.0};
@@ -53,9 +53,9 @@ double net_present_value(
 
 double internal_rate_of_return(
     const std::vector<double>& cash_flows,
-    double initial_guess = 0.1,
-    int max_iterations = 100,
-    double tolerance = 1e-6
+    double initial_guess,
+    int max_iterations,
+    double tolerance
 ) {
     double r = initial_guess;
 

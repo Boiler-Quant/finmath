@@ -22,7 +22,7 @@ double annuity_present_value(double payment, double rate, int periods) {
         throw std::invalid_argument("rate must be non-negative");
     }
     if (periods < 0.0) {
-        throw std::invalid_argument("periods must be non-negative")
+        throw std::invalid_argument("periods must be non-negative");
     }
     if (rate == 0.0) {
         return payment * periods;
@@ -49,7 +49,10 @@ double annuity_future_value(double payment, double rate, int periods) {
         throw std::invalid_argument("rate must be non-negative");
     }
     if (periods < 0.0) {
-        throw std::invalid_argument("periods must be non-negative")
+        throw std::invalid_argument("periods must be non-negative");
+    }
+    if (rate == 0.0) {
+        return payment * periods;
     }
 
     return payment * (std::pow(1.0 + rate, periods) - 1) / rate;
@@ -72,10 +75,10 @@ double annuity_due_present_value(double payment, double rate, int periods) {
         throw std::invalid_argument("rate must be non-negative");
     }
     if (periods < 0.0) {
-        throw std::invalid_argument("periods must be non-negative")
+        throw std::invalid_argument("periods must be non-negative");
     }
 
-    return payment * (1 - std::pow(1.0 + rate, -periods)) / r * (1.0 + rate);
+    return payment * (1 - std::pow(1.0 + rate, -periods)) / rate * (1.0 + rate);
 }
 
 /**
@@ -94,7 +97,10 @@ double annuity_due_future_value(double payment, double rate, int periods) {
         throw std::invalid_argument("rate must be non-negative");
     }
     if (periods < 0.0) {
-        throw std::invalid_argument("periods must be non-negative")
+        throw std::invalid_argument("periods must be non-negative");
+    }
+    if (rate == 0.0) {
+        return payment * periods;
     }
 
     return payment * (std::pow(1.0 + rate, periods) - 1) / rate * (1.0 + rate);

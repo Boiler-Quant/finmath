@@ -2,6 +2,9 @@
 #define CASH_FLOW_H
 
 #include <cmath>
+#include <stdexcept>
+#include <vector>
+
 
 /**
  * Net Present Value

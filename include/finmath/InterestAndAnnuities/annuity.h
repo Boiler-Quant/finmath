@@ -2,6 +2,7 @@
 #define ANNUITY_H
 
 #include <cmath>
+#include <stdexcept>
 
 /**
  * Present value of ordinary annuity

@@ -123,7 +123,7 @@ PYBIND11_MODULE(finmath, m)
               "Present value (continuous compounding)",
               py::arg("future_value"), py::arg("rate"), py::arg("time"));
 
-      m.def("future_value_continuous", &future_value_continous,
+      m.def("future_value_continuous", &future_value_continuous,
               "Future value (continuous compounding)",
               py::arg("present_value"), py::arg("rate"), py::arg("time"));
 

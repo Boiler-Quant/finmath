@@ -2,6 +2,8 @@
 #define PRESENT_FUTURE_VALUE_H
 
 #include <cmath>
+#include <stdexcept>
+
 
 /**
  * Present value with discrete compounding

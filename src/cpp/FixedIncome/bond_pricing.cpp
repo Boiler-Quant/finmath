@@ -64,6 +64,9 @@ double bond_yield(
     int    n = static_cast<int>(time_to_maturity * periods);
     double coupon = face_value * coupon_rate / periods;
 
+    constexpr int max_iterations = 100;
+    constexpr double tolerance = 1e12;
+
     for (int iter = 0; iter < max_iterations; iter++) {
         // f(r)  = bond_price(r) - market_price  →  find root
         double f  = 0.0;
