@@ -13,6 +13,8 @@
 #include "finmath/TimeSeries/rsi_simd.h"
 #include "finmath/TimeSeries/ema.h"
 #include "finmath/TimeSeries/ema_simd.h"
+#include "finmath/TimeSeries/returns.h"
+#include "finmath/TimeSeries/rolling_zscore.h"
 #include "finmath/Helper/simd_helper.h"
 #include "finmath/GraphAlgos/bellman_arbitrage.h"
 
@@ -22,6 +24,10 @@ namespace py = pybind11;
 std::vector<double> rolling_volatility_np(py::array_t<double> prices_arr, size_t window_size);
 std::vector<double> simple_moving_average_np(py::array_t<double> data_arr, size_t window_size);
 std::vector<double> compute_smoothed_rsi_np(py::array_t<double> prices_arr, size_t window_size);
+std::vector<double> log_returns_np(py::array_t<double> prices_arr);
+std::vector<double> pct_returns_np(py::array_t<double> prices_arr);
+std::vector<double> rolling_mean_np(py::array_t<double> data_arr, size_t window_size);
+std::vector<double> rolling_zscore_np(py::array_t<double> data_arr, size_t window_size);
 
 PYBIND11_MODULE(finmath, m)
 {
@@ -82,6 +88,16 @@ PYBIND11_MODULE(finmath, m)
             py::arg("prices"), py::arg("window_size"));
       m.def("ema_smoothing_simd", &compute_ema_with_smoothing_simd, "Exponential Moving Average - Smoothing Factor (SIMD-optimized, zero-copy NumPy)",
             py::arg("prices"), py::arg("smoothing_factor"));
+
+      // Returns + z-score utilities
+      m.def("log_returns", &log_returns, "Log returns (List input)", py::arg("prices"));
+      m.def("log_returns", &log_returns_np, "Log returns (NumPy/Pandas input)", py::arg("prices"));
+      m.def("pct_returns", &pct_returns, "Percent returns (List input)", py::arg("prices"));
+      m.def("pct_returns", &pct_returns_np, "Percent returns (NumPy/Pandas input)", py::arg("prices"));
+      m.def("rolling_mean", &rolling_mean, "Rolling mean (List input)", py::arg("window_size"), py::arg("data"));
+      m.def("rolling_mean", &rolling_mean_np, "Rolling mean (NumPy/Pandas input)", py::arg("data"), py::arg("window_size"));
+      m.def("rolling_zscore", &rolling_zscore, "Rolling z-score (List input)", py::arg("window_size"), py::arg("data"));
+      m.def("rolling_zscore", &rolling_zscore_np, "Rolling z-score (NumPy/Pandas input)", py::arg("data"), py::arg("window_size"));
 
       // Utility function to get SIMD backend
       m.def("get_simd_backend", &finmath::simd::get_simd_backend, "Get the active SIMD backend (AVX, SSE, NEON, or Scalar)");

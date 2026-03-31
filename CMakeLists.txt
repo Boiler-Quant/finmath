@@ -106,6 +106,8 @@ add_cpp_test_labeled(BlackScholesTest test/OptionPricing/black_scholes_test.cpp 
 add_cpp_test_labeled(BinomialOptionPricingTest test/OptionPricing/binomial_option_pricing_test.cpp "OptionPricing;Unit")
 add_cpp_test_labeled(RSITest test/TimeSeries/rsi_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(RollingStdDevTest test/TimeSeries/rolling_std_dev_test.cpp "TimeSeries;Unit")
+add_cpp_test_labeled(ReturnsTest test/TimeSeries/returns_test.cpp "TimeSeries;Unit")
+add_cpp_test_labeled(RollingZScoreTest test/TimeSeries/rolling_zscore_test.cpp "TimeSeries;Unit")
 add_cpp_test_labeled(BellmanArbitrageTest test/GraphAlgos/bellman_arbitrage_test.cpp "GraphAlgos;Unit")
 add_cpp_test_labeled(MarkovChainTest test/MarkovChains/C++/markov_chain_test.cpp "MarkovChains;Unit")
 

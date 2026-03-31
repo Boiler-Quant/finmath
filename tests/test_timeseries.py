@@ -74,3 +74,29 @@ def test_get_simd_backend():
     backend = finmath.get_simd_backend()
     assert isinstance(backend, str)
     assert backend  # non-empty
+
+
+def test_log_returns_list():
+    prices = [100.0, 110.0, 99.0]
+    r = finmath.log_returns(prices)
+    assert len(r) == len(prices)
+    assert r[0] == pytest.approx(0.0)
+    assert r[1] == pytest.approx(__import__("math").log(110.0 / 100.0))
+
+
+def test_pct_returns_list():
+    prices = [100.0, 110.0, 99.0]
+    r = finmath.pct_returns(prices)
+    assert len(r) == len(prices)
+    assert r[0] == pytest.approx(0.0)
+    assert r[1] == pytest.approx(0.10)
+    assert r[2] == pytest.approx(-0.10)
+
+
+def test_rolling_zscore_list():
+    x = [1.0, 2.0, 3.0, 4.0, 5.0]
+    z = finmath.rolling_zscore(3, x)
+    assert len(z) == len(x)
+    assert z[0] == pytest.approx(0.0)
+    assert z[1] == pytest.approx(0.0)
+    assert z[-1] != 0.0
