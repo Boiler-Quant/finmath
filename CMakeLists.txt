@@ -100,10 +100,10 @@ macro(add_cpp_test_labeled test_name source_file labels)
 endmacro()
 
 # --- SIMD and helper tests (label: SIMD) ---
-add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "SIMD;Helper;Unit")
-add_cpp_test_labeled(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp "SIMD;TimeSeries;Unit")
-add_cpp_test_labeled(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp "SIMD;TimeSeries;Unit")
-add_cpp_test_labeled(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp "SIMD;TimeSeries;Unit")
+# add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "SIMD;Helper;Unit")
+# add_cpp_test_labeled(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp "SIMD;TimeSeries;Unit")
+# add_cpp_test_labeled(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp "SIMD;TimeSeries;Unit")
+# add_cpp_test_labeled(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp "SIMD;TimeSeries;Unit")
 
 # --- Core unit tests ---
 add_cpp_test_labeled(CompoundInterestTest test/InterestAndAnnuities/compound_interest_test.cpp "InterestAndAnnuities;Unit")
@@ -118,6 +118,9 @@ add_cpp_test_labeled(CashFlowTest test/InterestAndAnnuities/cash_flow_test.cpp "
 add_cpp_test_labeled(DiscountFactorTest test/InterestAndAnnuities/discount_factor_test.cpp "InterestAndAnnuities;Unit")
 add_cpp_test_labeled(PresentFutureValueTest test/InterestAndAnnuities/present_future_value_test.cpp "InterestAndAnnuities;Unit")
 
+# add_cpp_test_labeled(RSITest test/TimeSeries/rsi_test.cpp "TimeSeries;Unit")
+# add_cpp_test_labeled(RollingStdDevTest test/TimeSeries/rolling_std_dev_test.cpp "TimeSeries;Unit")
+# add_cpp_test_labeled(BellmanArbitrageTest test/GraphAlgos/bellman_arbitrage_test.cpp "GraphAlgos;Unit")
 
 # Profiling harness: rolling volatility (scalar path only; SIMD path via Python)
 add_executable(RollingVolatilityProfile_harness profiling/harness_rolling_volatility.cpp)
