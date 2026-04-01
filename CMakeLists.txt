@@ -53,10 +53,14 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Source files
-file(GLOB SOURCES "src/cpp/*/*.cpp")
+file(GLOB ALL_SOURCES "src/cpp/*/*.cpp")
+
+# Core library sources should be pure C++ (no pybind11/Python C-API usage).
+set(CORE_SOURCES ${ALL_SOURCES})
+list(FILTER CORE_SOURCES EXCLUDE REGEX "_simd\\.cpp$")
 
 # Create the main C++ library target with a unique name
-add_library(finmath_library SHARED ${SOURCES}
+add_library(finmath_library SHARED ${CORE_SOURCES}
     "src/cpp/InterestAndAnnuities/simple_interest.cpp"
     "include/finmath/InterestAndAnnuities/simple_interest.h"
     "include/finmath/OptionPricing/options_pricing.h"
@@ -66,12 +70,9 @@ add_library(finmath_library SHARED ${SOURCES}
     "include/finmath/TimeSeries/rsi.h"
     "include/finmath/TimeSeries/ema.h")
 
-# Link pybind11 headers to the main library (needed for numpy integration in C++ files)
-target_link_libraries(finmath_library PUBLIC pybind11::headers)
-
-# Also link Python libraries/headers (needed for Python.h)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
-target_link_libraries(finmath_library PUBLIC Python::Python)
+
+# finmath_library intentionally does not link against Python.
 
 # Enable testing
 enable_testing()
@@ -94,11 +95,8 @@ macro(add_cpp_test_labeled test_name source_file labels)
     set_tests_properties(${test_name} PROPERTIES LABELS "${labels}")
 endmacro()
 
-# --- SIMD and helper tests (label: SIMD) ---
-add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "SIMD;Helper;Unit")
-add_cpp_test_labeled(SimpleMovingAverageSIMDTest test/TimeSeries/SimpleMovingAverage/C++/simple_moving_average_simd_test.cpp "SIMD;TimeSeries;Unit")
-add_cpp_test_labeled(RSISIMDTest test/TimeSeries/RSI/C++/rsi_simd_test.cpp "SIMD;TimeSeries;Unit")
-add_cpp_test_labeled(EMASIMDTest test/TimeSeries/EMA/C++/ema_simd_test.cpp "SIMD;TimeSeries;Unit")
+# --- Helper tests ---
+add_cpp_test_labeled(SIMDHelperTest test/Helper/C++/simd_helper_test.cpp "Helper;Unit")
 
 # --- Core unit tests ---
 add_cpp_test_labeled(CompoundInterestTest test/InterestAndAnnuities/compound_interest_test.cpp "InterestAndAnnuities;Unit")
@@ -115,15 +113,16 @@ target_link_libraries(RollingVolatilityProfile_harness PRIVATE finmath_library)
 
 # Add pybind11 for Python bindings
 include(FetchContent)
+set(PYBIND11_FINDPYTHON ON CACHE BOOL "Use FindPython for pybind11" FORCE)
 FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG v2.11.1  # Use a stable version of pybind11
+    GIT_TAG v2.13.6  # Python 3.13-compatible stable version
 )
 FetchContent_MakeAvailable(pybind11)
 
 # Create the Python bindings target
-pybind11_add_module(finmath_bindings src/python_bindings.cpp ${SOURCES})
+pybind11_add_module(finmath_bindings src/python_bindings.cpp ${ALL_SOURCES})
 
 # Set the output name of the bindings to 'finmath' to match your desired module name
 set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")

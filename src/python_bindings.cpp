@@ -2,6 +2,8 @@
 #include <pybind11/stl.h>   // Automatic conversion between Python lists and std::vector
 #include <pybind11/numpy.h> // Add numpy include
 
+#include <numeric>
+
 #include "finmath/InterestAndAnnuities/compound_interest.h"
 #include "finmath/OptionPricing/black_scholes.h"
 #include "finmath/OptionPricing/binomial_tree.h"
@@ -90,4 +92,41 @@ PYBIND11_MODULE(finmath, m)
       m.def("detect_arbitrage", &detectArbitrageBellman<std::string>,
             "Detect arbitrage opportunities in a currency graph",
             py::arg("graph"));
+}
+
+// --- NumPy/Pandas wrappers (kept in bindings to avoid linking libpython into core lib) ---
+std::vector<double> rolling_volatility_np(py::array_t<double> prices_arr, size_t window_size)
+{
+      py::buffer_info buf_info = prices_arr.request();
+      if (buf_info.ndim != 1) {
+            throw std::runtime_error("Input array must be 1-dimensional.");
+      }
+      const size_t n = static_cast<size_t>(buf_info.size);
+      const double* ptr = static_cast<const double*>(buf_info.ptr);
+      std::vector<double> prices(ptr, ptr + n);
+      return rolling_volatility(prices, window_size);
+}
+
+std::vector<double> simple_moving_average_np(py::array_t<double> data_arr, size_t window_size)
+{
+      py::buffer_info buf_info = data_arr.request();
+      if (buf_info.ndim != 1) {
+            throw std::runtime_error("Input array must be 1-dimensional.");
+      }
+      const size_t n = static_cast<size_t>(buf_info.size);
+      const double* ptr = static_cast<const double*>(buf_info.ptr);
+      std::vector<double> data(ptr, ptr + n);
+      return simple_moving_average(data, window_size);
+}
+
+std::vector<double> compute_smoothed_rsi_np(py::array_t<double> prices_arr, size_t window_size)
+{
+      py::buffer_info buf_info = prices_arr.request();
+      if (buf_info.ndim != 1) {
+            throw std::runtime_error("Input array must be 1-dimensional.");
+      }
+      const size_t n = static_cast<size_t>(buf_info.size);
+      const double* ptr = static_cast<const double*>(buf_info.ptr);
+      std::vector<double> prices(ptr, ptr + n);
+      return compute_smoothed_rsi(prices, window_size);
 }
