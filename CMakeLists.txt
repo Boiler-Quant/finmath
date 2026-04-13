@@ -124,9 +124,14 @@ FetchContent_MakeAvailable(pybind11)
 # Create the Python bindings target
 pybind11_add_module(finmath_bindings src/python_bindings.cpp ${ALL_SOURCES})
 
-set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")
+# Extension loads as finmath._finmath (see finmath/__init__.py)
+set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "_finmath")
 
-set_target_properties(finmath_bindings PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+set_target_properties(finmath_bindings PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/finmath")
+
+if(DEFINED SKBUILD)
+  install(TARGETS finmath_bindings LIBRARY DESTINATION finmath)
+endif()
 
 # Link the Python bindings target with the C++ library
 target_link_libraries(finmath_bindings PRIVATE finmath_library)

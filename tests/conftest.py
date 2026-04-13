@@ -7,10 +7,7 @@ Ensures the built extension is importable: either install the package
 import sys
 from pathlib import Path
 
-# Add project root and src so "import finmath" finds the built extension
+# Project root on path so package `finmath/` (with built `_finmath` extension) is importable
 _root = Path(__file__).resolve().parent.parent
-_src = _root / "src"
 if _root not in sys.path:
     sys.path.insert(0, str(_root))
-if _src not in sys.path:
-    sys.path.insert(0, str(_src))
