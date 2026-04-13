@@ -59,8 +59,8 @@ file(GLOB ALL_SOURCES "src/cpp/*/*.cpp")
 set(CORE_SOURCES ${ALL_SOURCES})
 list(FILTER CORE_SOURCES EXCLUDE REGEX "_simd\\.cpp$")
 
-# Create the main C++ library target with a unique name
-add_library(finmath_library SHARED ${CORE_SOURCES}
+# Static core library linked into the Python module and test executables (single artifact for wheels).
+add_library(finmath_library STATIC ${CORE_SOURCES}
     "src/cpp/InterestAndAnnuities/simple_interest.cpp"
     "include/finmath/InterestAndAnnuities/simple_interest.h"
     "include/finmath/OptionPricing/options_pricing.h"
@@ -124,10 +124,8 @@ FetchContent_MakeAvailable(pybind11)
 # Create the Python bindings target
 pybind11_add_module(finmath_bindings src/python_bindings.cpp ${ALL_SOURCES})
 
-# Set the output name of the bindings to 'finmath' to match your desired module name
 set_target_properties(finmath_bindings PROPERTIES OUTPUT_NAME "finmath")
 
-# Set the library output directory to be alongside the source bindings file
 set_target_properties(finmath_bindings PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 
 # Link the Python bindings target with the C++ library

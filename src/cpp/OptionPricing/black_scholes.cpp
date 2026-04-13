@@ -3,18 +3,20 @@
 #include "finmath/OptionPricing/black_scholes.h"
 #include "finmath/Helper/helper.h"
 
-double black_scholes(OptionType type, double strike, double price, double time, double rate, double volatility) {
-    if (strike <= 0.0 || price <= 0.0 || time <= 0.0 || volatility < 0.0) {
+double black_scholes(OptionType type, double strike, double spot, double time, double rate, double volatility,
+                     double dividend_yield) {
+    if (strike <= 0.0 || spot <= 0.0 || time <= 0.0 || volatility < 0.0) {
         return std::numeric_limits<double>::quiet_NaN();
     }
-    const double d1 = (std::log(price / strike) + ((rate + volatility * volatility / 2) * time)) / (volatility * std::sqrt(time));
-    const double d2 = d1 - (volatility * std::sqrt(time));
+    const double d1 = (std::log(spot / strike) + (rate - dividend_yield + 0.5 * volatility * volatility) * time)
+                        / (volatility * std::sqrt(time));
+    const double d2 = d1 - volatility * std::sqrt(time);
 
     if (type == OptionType::CALL) {
-        return price * normal_cdf(d1) - std::exp(-rate * time) * strike * normal_cdf(d2);
-    } else {
-        return strike * std::exp(-rate * time) * normal_cdf(-d2) - price * normal_cdf(-d1);
+        return spot * std::exp(-dividend_yield * time) * normal_cdf(d1)
+               - strike * std::exp(-rate * time) * normal_cdf(d2);
     }
+    return strike * std::exp(-rate * time) * normal_cdf(-d2) - spot * std::exp(-dividend_yield * time) * normal_cdf(-d1);
 }
 
 namespace BlackScholes {

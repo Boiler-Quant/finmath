@@ -83,7 +83,7 @@ int binomial_option_pricing_tests()
     // Test 7: Call, out-of-the-money
     {
         double S0 = 100.0, K = 105.0, T = 1.0, r = 0.05, sigma = 0.2;
-        double bs = black_scholes(OptionType::CALL, S0, K, T, r, sigma);
+        double bs = black_scholes(OptionType::CALL, K, S0, T, r, sigma);
         double bin = binomial_option_pricing(OptionType::CALL, S0, K, T, r, sigma, 500);
         assert(almost_equal(bs, bin, rel_tol));
     }
@@ -91,7 +91,7 @@ int binomial_option_pricing_tests()
     // Test 8: Put, in-the-money
     {
         double S0 = 100.0, K = 95.0, T = 1.0, r = 0.05, sigma = 0.2;
-        double bs = black_scholes(OptionType::PUT, S0, K, T, r, sigma);
+        double bs = black_scholes(OptionType::PUT, K, S0, T, r, sigma);
         double bin = binomial_option_pricing(OptionType::PUT, S0, K, T, r, sigma, 500);
         assert(almost_equal(bs, bin, rel_tol));
     }
@@ -99,7 +99,7 @@ int binomial_option_pricing_tests()
     // Test 9: At-the-money call
     {
         double S0 = 100.0, K = 100.0, T = 1.0, r = 0.05, sigma = 0.2;
-        double bs = black_scholes(OptionType::CALL, S0, K, T, r, sigma);
+        double bs = black_scholes(OptionType::CALL, K, S0, T, r, sigma);
         double bin = binomial_option_pricing(OptionType::CALL, S0, K, T, r, sigma, 400);
         assert(almost_equal(bs, bin, rel_tol));
     }
@@ -107,7 +107,7 @@ int binomial_option_pricing_tests()
     // Test 10: Different maturity and vol
     {
         double S0 = 50.0, K = 52.0, T = 0.5, r = 0.03, sigma = 0.35;
-        double bs = black_scholes(OptionType::CALL, S0, K, T, r, sigma);
+        double bs = black_scholes(OptionType::CALL, K, S0, T, r, sigma);
         double bin = binomial_option_pricing(OptionType::CALL, S0, K, T, r, sigma, 400);
         assert(almost_equal(bs, bin, rel_tol));
     }

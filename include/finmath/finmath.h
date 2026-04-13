@@ -10,5 +10,14 @@
 #include "finmath/TimeSeries/ema.h"
 #include "finmath/TimeSeries/rolling_std_dev.h"
 #include "finmath/MarkovChains/markov_chain.h"
+#include "finmath/TimeSeries/autocorrelation.h"
+#include "finmath/TimeSeries/rolling_corr.h"
+#include "finmath/TimeSeries/returns.h"
+#include "finmath/TimeSeries/rolling_zscore.h"
+#include "finmath/TimeSeries/vwap.h"
+#include "finmath/OrderBook/features.h"
+#include "finmath/Regression/OLS.h"
+#include "finmath/MonteCarlo/monte_carlo.h"
+#include "finmath/Risk/risk_metrics.h"
 
 #endif  // FINMATH_H

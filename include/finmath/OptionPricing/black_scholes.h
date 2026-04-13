@@ -3,7 +3,9 @@
 
 #include "options_pricing_types.h"
 
-double black_scholes(OptionType type, double strike, double price, double time, double rate, double volatility);
+// Spot/strike convention: `spot` is underlying, `strike` is K. `dividend_yield` is continuous q (default 0).
+double black_scholes(OptionType type, double strike, double spot, double time, double rate, double volatility,
+                     double dividend_yield = 0.0);
 
 namespace BlackScholes {
     double compute_delta(OptionType type, double S0, double K, double t, double r, double q, double sigma);
