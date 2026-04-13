@@ -45,13 +45,20 @@
    make
    ```
 
-5. **Install the Python bindings** (optional):
+5. **Build the Python extension** (optional):
 
    ```bash
+   cmake --build . --target finmath_bindings
+   ```
+
+   Or install the package (uses scikit-build-core and CMake):
+
+   ```bash
+   cd ..
    pip install .
    ```
 
-This will build the `finmath` library and create the Python bindings so that you can use `finmath` directly in Python.
+This builds the C++ library and the `finmath._finmath` extension; the `finmath` package re-exports it from `finmath/__init__.py`.
 
 ## Usage
 
@@ -70,8 +77,8 @@ frequency = 4
 result = finmath.compound_interest(principal, rate, time, frequency)
 print(f"Compound Interest: {result}")
 
-# Example: Calculate option price using Black-Scholes model
-option_price = finmath.black_scholes(finmath.OptionType.CALL, 95, 100, 1, 0.05, 0.2)
+# Example: Black-Scholes (strike, spot, time, rate, vol, optional dividend_yield)
+option_price = finmath.black_scholes(finmath.OptionType.CALL, 95, 100, 1, 0.05, 0.2, 0.0)
 print(f"Black-Scholes Option Price: {option_price}")
 
 # Example: Calculate rolling volatility over a 22-day window
