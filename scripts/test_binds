@@ -1,0 +1,9 @@
+cd ..
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/local -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_BUILD_TYPE=Release
+make
+make install
+export PYTHONPATH=$HOME/local:$PYTHONPATH
+python3 -c "import finmath; print(finmath.compound_interest(1000, 5, 10, 4))"
+cd ..
+rm -rf build

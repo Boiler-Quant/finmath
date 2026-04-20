@@ -1,0 +1,36 @@
+name: Build Wheels
+
+on:
+  push:
+    branches: [ main, pip_test_2 ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_wheels:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install cibuildwheel
+        run: pip install cibuildwheel
+
+      - name: Build wheels
+        run: cibuildwheel --output-dir dist .
+
+      - name: Upload wheels artifact
+        uses: actions/upload-artifact@v4 # Updated to v4
+        with:
+          name: wheels-${{ matrix.os }} # Creates an artifact named e.g., "wheels-ubuntu-latest"
+          path: dist/*.whl # Uploads all .whl files from the 'dist' directory
+          if-no-files-found: error # Optional: Fails the step if no wheels are found
+

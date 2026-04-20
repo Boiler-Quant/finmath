@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(finmath)
+project(finmath LANGUAGES CXX)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -52,19 +52,17 @@ endif()
 # Add include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+# For MSVC, define _USE_MATH_DEFINES to get M_PI etc. from <cmath>
+if(MSVC)
+    add_compile_definitions(_USE_MATH_DEFINES)
+    message(STATUS "MSVC detected, adding _USE_MATH_DEFINES compile definition.")
+endif()
+
 # Source files
 file(GLOB SOURCES "src/cpp/*/*.cpp")
 
 # Create the main C++ library target with a unique name
-add_library(finmath_library SHARED ${SOURCES}
-    "src/cpp/InterestAndAnnuities/simple_interest.cpp"
-    "include/finmath/InterestAndAnnuities/simple_interest.h"
-    "include/finmath/OptionPricing/options_pricing.h"
-    "include/finmath/OptionPricing/options_pricing_types.h"
-    "include/finmath/TimeSeries/rolling_volatility.h"
-    "include/finmath/TimeSeries/simple_moving_average.h"
-    "include/finmath/TimeSeries/rsi.h"
-    "include/finmath/TimeSeries/ema.h")
+add_library(finmath_library SHARED ${SOURCES})
 
 # Link pybind11 headers to the main library (needed for numpy integration in C++ files)
 target_link_libraries(finmath_library PUBLIC pybind11::headers)
@@ -132,3 +130,41 @@ set_target_properties(finmath_bindings PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PR
 
 # Link the Python bindings target with the C++ library
 target_link_libraries(finmath_bindings PRIVATE finmath_library)
+
+# Set install target for pip to find shared lib
+install(TARGETS finmath_bindings finmath_library
+        LIBRARY DESTINATION finmath
+        ARCHIVE DESTINATION finmath
+        RUNTIME DESTINATION finmath
+)
+
+if(APPLE)
+    # For the Python bindings module
+    set_target_properties(finmath_bindings PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "@loader_path"
+    )
+    # For the library itself (if needed)
+    set_target_properties(finmath_library PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "@loader_path"
+    )
+elseif(UNIX) # Linux
+    # $ORIGIN tells the dynamic linker to look for the library
+    # in the same directory as the binary (finmath_bindings module).
+    # auditwheel will usually refine this.
+    set_target_properties(finmath_bindings PROPERTIES
+            BUILD_RPATH "$ORIGIN"
+    )
+    set_target_properties(finmath_bindings PROPERTIES
+            INSTALL_RPATH "$ORIGIN"
+    )
+    set_target_properties(finmath_library PROPERTIES
+            INSTALL_RPATH "$ORIGIN"
+    )
+    set(_INSTALL_RPATH "$ORIGIN")
+else() # Windows or other OS where RPATH is not standard
+    set(_INSTALL_RPATH "")
+endif()
+
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
