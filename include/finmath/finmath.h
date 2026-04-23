@@ -9,5 +9,6 @@
 #include "finmath/TimeSeries/rsi.h"
 #include "finmath/TimeSeries/ema.h"
 #include "finmath/TimeSeries/rolling_std_dev.h"
+#include "finmath/MarkovChains/markov_chain.h"
 
 #endif  // FINMATH_H
